@@ -1,6 +1,6 @@
 # SELAT plugins
 
-Install **SELAT** in any agent harness — Claude Code, Codex, Factory, Gemini CLI, or a
+Install **SELAT** in any agent harness — Claude Code, Codex, Cursor, Gemini CLI, or a
 plain CLI — so the agent can discover and pay for capabilities beyond its native
 abilities, settling each payment from the **user's own Circle Agent Wallet**
 (MPC self-custody). SELAT never sees a private key or holds the user's funds.
@@ -53,7 +53,6 @@ auto-approved; anything that spends or moves money (`selat run`, `selat skill ru
 | Claude Code | [guides/claude-code.md](guides/claude-code.md) | `/plugin marketplace add SELAT-AI/selat-plugins` then `/plugin install selat@selat-plugins` |
 | Codex | [guides/codex.md](guides/codex.md) | `codex plugin marketplace add SELAT-AI/selat-plugins` then `codex plugin add selat@selat-plugins` |
 | Gemini CLI | [guides/gemini-cli.md](guides/gemini-cli.md) | `gemini extensions install https://github.com/SELAT-AI/selat-plugins --auto-update` |
-| Factory | (uses `plugins/selat/.factory-plugin/plugin.json`) | 【VERIFY: Factory plugin install command】 |
 | Any other / none | [guides/generic.md](guides/generic.md) | `npm i -g @selat-ai/selat-cli` then `selat init` |
 
 After install, every harness runs the same first-time setup (self-custody):
@@ -66,14 +65,13 @@ selat doctor    # confirm everything is green
 ## Layout
 
 ```
-.claude-plugin/marketplace.json      # Claude Code / Factory marketplace
+.claude-plugin/marketplace.json      # Claude Code marketplace
 .agents/plugins/marketplace.json     # .agents-style marketplace
 plugins/
   selat/
     .claude-plugin/plugin.json       # Claude Code manifest
     .codex-plugin/plugin.json        # Codex manifest
     .cursor-plugin/plugin.json       # Cursor manifest
-    .factory-plugin/plugin.json      # Factory/Droid manifest
     openclaw.plugin.json             # OpenClaw manifest
     package.json                     # Antigravity manifest
     AGENTS.md                        # standing context for Codex/Cursor/OpenClaw/Antigravity
