@@ -1,0 +1,15 @@
+{
+  "name": "selat-plugins",
+  "owner": { "name": "SELAT", "url": "https://selat.ai" },
+  "metadata": {
+    "description": "Official SELAT plugins — discover vetted skills and federated x402/MPP capabilities, and pay from your own Circle Agent Wallet (self-custody) from any agent."
+  },
+  "plugins": [
+    {
+      "name": "selat",
+      "source": "./plugins/selat",
+      "description": "Two-tier capability layer: vetted multi-step skills first, then a federated x402/MPP endpoint catalog — image/video/audio generation, translation, web scraping, data enrichment, real-time data, on-chain actions. Payments settle from your own Circle Agent Wallet (self-custody — SELAT never holds your keys or funds).",
+      "category": "productivity"
+    }
+  ]
+}

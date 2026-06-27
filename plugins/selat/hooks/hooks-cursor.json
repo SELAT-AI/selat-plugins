@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "hooks": {
+    "sessionStart": [
+      {
+        "command": "\"${CURSOR_PLUGIN_ROOT}/hooks-handlers/run-hook.cmd\" ensure-runner.sh",
+        "timeout": 120
+      }
+    ],
+    "beforeSubmitPrompt": [
+      {
+        "command": "\"${CURSOR_PLUGIN_ROOT}/hooks-handlers/run-hook.cmd\" selat-context.sh",
+        "timeout": 5
+      }
+    ],
+    "preToolUse": [
+      {
+        "matcher": "Bash",
+        "command": "\"${CURSOR_PLUGIN_ROOT}/hooks-handlers/run-hook.cmd\" auto-approve-selat.sh",
+        "timeout": 5
+      }
+    ]
+  }
+}

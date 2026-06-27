@@ -1,0 +1,48 @@
+# SELAT for Claude Code (CLI)
+
+How to install SELAT in the Claude Code CLI.
+
+> Repo is **PROPOSED**: `SELAT-AI/selat-plugins` (the plugin-marketplace repo) may not
+> exist yet — 【VERIFY/TODO: create or rename to the real marketplace repo before
+> publishing these commands】. Until it exists, install the runner directly:
+> `npm i -g @selat-ai/selat-cli` then `selat init`.
+
+## Install
+
+### Inside Claude Code
+
+Inside a Claude Code session, run:
+
+```
+/plugin marketplace add SELAT-AI/selat-plugins
+/plugin install selat@selat-plugins
+/reload-plugins
+```
+
+### From the terminal
+
+```bash
+claude plugin marketplace add SELAT-AI/selat-plugins
+claude plugin install selat@selat-plugins
+```
+
+## First-run setup (self-custody — you do this once)
+
+SELAT settles payments from **your own Circle Agent Wallet** (MPC self-custody) — SELAT
+never holds your keys or your balance. The plugin will **not** create a wallet for you.
+On the first session it checks your setup and, if needed, asks you to run the single
+onboarding command yourself:
+
+```bash
+selat init      # checks the skill, Circle auth, your Agent Wallet, selat-pay, config
+selat doctor    # confirm everything is green
+```
+
+Then ask Claude: *"Help me set up and test SELAT."* It walks you through the rest and
+runs read-only discovery; any paid call asks for your approval first.
+
+## Staying up to date
+
+- The SELAT runner (`@selat-ai/selat-cli`) is checked at the start of each session and
+  updated when a newer version is published.
+- Pin a version with `SELAT_CLI_SPEC=0.7.2` in your environment.
