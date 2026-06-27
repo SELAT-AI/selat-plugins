@@ -2,10 +2,9 @@
 
 How to install SELAT in the Claude Code CLI.
 
-> Repo is **PROPOSED**: `SELAT-AI/selat-plugins` (the plugin-marketplace repo) may not
-> exist yet — 【VERIFY/TODO: create or rename to the real marketplace repo before
-> publishing these commands】. Until it exists, install the runner directly:
-> `npm i -g @selat-ai/selat-cli` then `selat init`.
+> Marketplace repo: **[`SELAT-AI/selat-plugins`](https://github.com/SELAT-AI/selat-plugins)**
+> (public). The `claude plugin marketplace add` flow below is verified end-to-end. Or
+> install the runner directly: `npm i -g @selat-ai/selat-cli` then `selat init`.
 
 ## Install
 

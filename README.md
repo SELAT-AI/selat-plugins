@@ -5,10 +5,10 @@ plain CLI — so the agent can discover and pay for capabilities beyond its nati
 abilities, settling each payment from the **user's own Circle Agent Wallet**
 (MPC self-custody). SELAT never sees a private key or holds the user's funds.
 
-> **Proposed repo: `SELAT-AI/selat-plugins`** — 【PROPOSED】. This marketplace repo is
+> **Marketplace repo: [`SELAT-AI/selat-plugins`](https://github.com/SELAT-AI/selat-plugins)** —
 > the third SELAT distribution surface (after the npm package and the published skill).
-> It may not exist yet; the install commands below assume it does. Until it's created,
-> install the runner directly with `npm i -g @selat-ai/selat-cli` and run `selat init`.
+> Prefer the plugin install below. Or install the runner directly with
+> `npm i -g @selat-ai/selat-cli` and run `selat init`.
 
 ## What this is
 

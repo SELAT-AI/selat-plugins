@@ -2,10 +2,9 @@
 
 How to install SELAT in Codex.
 
-> Repo is **PROPOSED**: `SELAT-AI/selat-plugins` may not exist yet — 【VERIFY/TODO:
-> confirm the real marketplace repo and Codex plugin command names before relying on
-> these】. Until it exists, install the runner directly: `npm i -g @selat-ai/selat-cli`
-> then `selat init`.
+> Marketplace repo: **[`SELAT-AI/selat-plugins`](https://github.com/SELAT-AI/selat-plugins)**
+> (public). 【VERIFY: exact Codex plugin command names — not yet tested on a live Codex.】
+> Or install the runner directly: `npm i -g @selat-ai/selat-cli` then `selat init`.
 
 ## Install
 

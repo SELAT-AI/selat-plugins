@@ -2,10 +2,10 @@
 
 How to install SELAT as a Gemini CLI extension.
 
-> Repo is **PROPOSED**: `SELAT-AI/selat-plugins` may not exist yet — 【VERIFY/TODO:
-> confirm the real repo and Gemini extension install path before relying on this】.
-> Until it exists, install the runner directly: `npm i -g @selat-ai/selat-cli` then
-> `selat init`.
+> Marketplace repo: **[`SELAT-AI/selat-plugins`](https://github.com/SELAT-AI/selat-plugins)**
+> (public). 【VERIFY: exact `gemini extensions install` path for the extension — not yet
+> tested on a live Gemini CLI.】 Or install the runner directly:
+> `npm i -g @selat-ai/selat-cli` then `selat init`.
 
 ## Install
 
