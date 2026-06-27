@@ -53,6 +53,7 @@ auto-approved; anything that spends or moves money (`selat run`, `selat skill ru
 | Claude Code | [guides/claude-code.md](guides/claude-code.md) | `/plugin marketplace add SELAT-AI/selat-plugins` then `/plugin install selat@selat-plugins` |
 | Codex | [guides/codex.md](guides/codex.md) | `codex plugin marketplace add SELAT-AI/selat-plugins` then `codex plugin add selat@selat-plugins` |
 | Gemini CLI | [guides/gemini-cli.md](guides/gemini-cli.md) | `gemini extensions install https://github.com/SELAT-AI/selat-plugins --auto-update` |
+| OpenClaw | [guides/openclaw.md](guides/openclaw.md) | `openclaw plugins install selat --marketplace https://github.com/SELAT-AI/selat-plugins` (bundle auto-detect) |
 | Any other / none | [guides/generic.md](guides/generic.md) | `npm i -g @selat-ai/selat-cli` then `selat init` |
 
 After install, every harness runs the same first-time setup (self-custody):
@@ -72,9 +73,9 @@ plugins/
     .claude-plugin/plugin.json       # Claude Code manifest
     .codex-plugin/plugin.json        # Codex manifest
     .cursor-plugin/plugin.json       # Cursor manifest
-    openclaw.plugin.json             # OpenClaw manifest
     package.json                     # Antigravity manifest
     AGENTS.md                        # standing context for Codex/Cursor/OpenClaw/Antigravity
+                                     #   (OpenClaw consumes the bundle layout + AGENTS.md; no native manifest)
     hooks/
       hooks.json                     # Claude Code: SessionStart, UserPromptSubmit, PreToolUse(Bash)
       hooks-cursor.json              # Cursor: sessionStart, beforeSubmitPrompt, preToolUse
@@ -89,7 +90,7 @@ plugins/
     gemini-extension.json            # Gemini variant (contextFileName; no mcpServers)
     GEMINI.md                        # Gemini standing context (replaces a prompt hook)
 guides/
-  claude-code.md  codex.md  gemini-cli.md  generic.md
+  claude-code.md  codex.md  gemini-cli.md  openclaw.md  generic.md
 ```
 
 Standing-reminder mechanism differs by harness: **hooks** on Claude Code (and Cursor);
