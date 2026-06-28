@@ -11,7 +11,7 @@ Copy this into your coding agent (Claude Code, Codex, Cursor, Gemini CLI, …) a
 
 > Help me set up SELAT — it lets you find and pay for tools you don't have built in (image/video/audio generation, web scraping, live and on-chain data), paid from my own crypto wallet that I control. Read github.com/SELAT-AI/selat-plugins and follow the setup for your harness. Don't create or fund a wallet for me — guide me and I'll approve it.
 
-Prefer to do it yourself? See [**Install per harness**](#install-per-harness) below, or just run `npm i -g @selat-ai/selat-cli` then `selat init`.
+Prefer to do it yourself? See [**Install per harness**](#install-per-harness) below, or just run `npm i -g @selat-ai/selat-cli` then `selat init`. Agents: the step-by-step runbook is [**install.md**](install.md).
 
 > **Marketplace repo: [`SELAT-AI/selat-plugins`](https://github.com/SELAT-AI/selat-plugins)** —
 > the third SELAT distribution surface (after the npm package and the published skill).
