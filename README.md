@@ -62,7 +62,7 @@ auto-approved; anything that spends or moves money (`selat run`, `selat skill ru
 | Codex | [guides/codex.md](guides/codex.md) | `codex plugin marketplace add SELAT-AI/selat-plugins` then `codex plugin add selat@selat-plugins` |
 | Gemini CLI | [guides/gemini-cli.md](guides/gemini-cli.md) | `gemini extensions install https://github.com/SELAT-AI/selat-plugins --auto-update` |
 | OpenClaw | [guides/openclaw.md](guides/openclaw.md) | `openclaw plugins install selat --marketplace https://github.com/SELAT-AI/selat-plugins` (bundle auto-detect) |
-| Hermes Agent | [guides/hermes.md](guides/hermes.md) | `hermes skills install SELAT-AI/selat-plugins` (SKILL.md-native; see `skills.sh.json`) |
+| Hermes Agent | [guides/hermes.md](guides/hermes.md) | `hermes plugins install SELAT-AI/selat-plugins --enable` (plugin installs the `selat-cli` runner) |
 | Any other / none | [guides/generic.md](guides/generic.md) | `npm i -g @selat-ai/selat-cli` then `selat init` |
 
 After install, every harness runs the same first-time setup (self-custody):
@@ -98,9 +98,11 @@ plugins/
   selat-gemini/
     gemini-extension.json            # Gemini variant (contextFileName; no mcpServers)
     GEMINI.md                        # Gemini standing context (replaces a prompt hook)
+  selat-hermes/
+    plugin.yaml                      # Hermes plugin manifest
+    __init__.py                      # register() installs the @selat-ai/selat-cli runner
 guides/
   claude-code.md  codex.md  gemini-cli.md  openclaw.md  hermes.md  generic.md
-skills.sh.json                       # skills.sh / Hermes skill-registry manifest (lists selat-discovery)
 ```
 
 Standing-reminder mechanism differs by harness: **hooks** on Claude Code (and Cursor);

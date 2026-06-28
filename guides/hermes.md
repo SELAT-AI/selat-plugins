@@ -4,46 +4,45 @@ How to use SELAT in [Hermes Agent](https://github.com/NousResearch/hermes-agent)
 
 > Marketplace repo: **[`SELAT-AI/selat-plugins`](https://github.com/SELAT-AI/selat-plugins)** (public).
 
-## How Hermes consumes SELAT — it's a skill, not a Python plugin
+## What the Hermes plugin does — it installs the runner
 
-Hermes is **SKILL.md-native**: it reads the `selat-discovery` skill unmodified (the same SKILL.md
-that works in Claude Code / Cursor / Codex), plus `AGENTS.md` for standing context. SELAT registers
-**no Python tools/hooks**, so it is **not** a Hermes Python plugin (`plugin.yaml` + `__init__.py` /
-`schemas.py` / `tools.py`) — that format is for in-process tool/hook code and is opt-in/gated. SELAT
-ships a skill that drives the published `@selat-ai/selat-cli` runner; the skill is the integration.
+The integration is a **Hermes plugin** (`plugins/selat-hermes/`: `plugin.yaml` + `__init__.py`).
+Its job on load is to **install the `@selat-ai/selat-cli` runner** — the runner is what actually
+makes SELAT work, and it *bundles* the `selat-discovery` skill + the `selat-pay` engine. The plugin
+then registers that bundled skill so Hermes can drive SELAT's two-tier loop. (We do **not** publish
+the skill to a registry as the integration — the skill is inert without the runner; installing the
+runner is the point.)
 
-This repo carries a **`skills.sh.json`** at its root (the cross-agent skill-registry manifest Hermes
-and other SKILL.md agents use) so `selat-discovery` is grouped and discoverable.
+**Self-custody:** the plugin installs the CLI **binary** only — it never creates or funds a wallet
+and never moves money. The user does wallet onboarding themselves via `selat init` (Circle MPC).
+
+Why a plugin and not a `skills.sh.json` skill listing: a skill listing surfaces instructions but
+installs nothing, so the `selat` command wouldn't exist. Why not a no-op manifest: Hermes plugins
+run `register(ctx)` on load (CLI + gateway), which is the natural place to ensure the runner.
 
 ## Install
 
-Pick whichever fits your setup:
-
 ```bash
-# 1) From the skill registry / git repo
-hermes skills install SELAT-AI/selat-plugins
-# (installs the selat-discovery skill into ~/.hermes/skills/)
-
-# 2) Or point Hermes at a shared agent-skills dir you already use (config-driven, no copy):
-#    in ~/.hermes/config.yaml →
-#      skills:
-#        external_dirs: ["~/.agents/skills"]
-#    then drop/symlink the selat-discovery skill there.
+hermes plugins install SELAT-AI/selat-plugins --enable
 ```
-【VERIFY】 exact `hermes skills install` behavior for a skill nested under
-`plugins/selat/skills/selat-discovery/` — Hermes auto-discovers `SKILL.md` and `skills.sh.json` lists
-the skill by name; confirm resolution on a live Hermes, or install the skill folder directly.
+On load the plugin runs `npm i -g @selat-ai/selat-cli` if `selat` isn't already on PATH (first load
+only), then registers the bundled skill. Hermes plugins are **opt-in** — `--enable` (or answering the
+`Enable 'selat' now?` prompt) is required before it runs.
+
+【VERIFY】 (a) that `hermes plugins install SELAT-AI/selat-plugins` resolves the plugin nested at
+`plugins/selat-hermes/` — if not, clone the repo and copy that directory into `~/.hermes/plugins/selat/`;
+(b) the `ctx` API names (`register_skill`, `inject_message`) against a live Hermes. Not yet tested live.
 
 ## First-run setup (self-custody)
 
-SELAT pays from **your own Circle Agent Wallet** (MPC self-custody) — it never holds your keys or
-funds, and never creates a wallet for you. Install the runner and onboard yourself:
+If the plugin can't auto-install (no npm / no network), or to do it by hand:
 
 ```bash
-npm i -g @selat-ai/selat-cli
-selat init      # checks the skill, Circle auth, your Agent Wallet, selat-pay, config
-selat doctor    # confirm everything is green
+npm i -g @selat-ai/selat-cli   # the runner (bundles selat-discovery + selat-pay)
+selat init                     # checks the skill, Circle auth, your Agent Wallet, selat-pay, config
+selat doctor                   # confirm everything is green
 ```
 
-The `selat-discovery` skill, once loaded, guides you through `selat init` if setup is incomplete —
-it never provisions a wallet or moves funds on its own.
+`selat init` walks the user through connecting their **own** Circle Agent Wallet (interactive OTP via
+the Circle CLI). The agent never creates or funds a wallet on the user's behalf — it guides; the user
+authorizes any spend.
