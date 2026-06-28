@@ -1,0 +1,10 @@
+{
+  "$schema": "https://skills.sh/schemas/skills.sh.schema.json",
+  "groupings": [
+    {
+      "title": "SELAT",
+      "description": "Discover and pay for capabilities beyond your agent's native abilities (image/video/audio, web scraping, live and on-chain data) — per use, from your own Circle Agent Wallet (self-custody; SELAT never holds your keys or funds).",
+      "skills": ["selat-discovery"]
+    }
+  ]
+}
