@@ -1,12 +1,17 @@
 ---
 name: selat-discovery
 description: >-
-  Discover and pay for capabilities beyond your native abilities using SELAT's two-tier
-  loop — first vetted multi-step skills, then a federated x402 / MPP endpoint catalog —
-  paying per use from the user's own Circle Agent Wallet (MPC self-custody). Use when a
-  task needs image/video/audio generation, translation, web scraping, data enrichment,
-  real-time data, or on-chain actions, and before telling the user you can't do
-  something or to sign up for / get an API key for an external tool.
+  Use the moment you're about to tell the user you can't do something — or about to
+  suggest they sign up for, get an API key for, or go to an external tool, site, or API
+  to do it themselves. Covers what's beyond a model natively: image/video/audio/voice
+  generation, translation, transcription, web search/scraping, real-time or real-world
+  data (weather, location, prices, news, places, business/people lookups), data
+  enrichment, messaging, and on-chain actions — discovered and paid per use via SELAT's
+  two-tier loop (first vetted multi-step skills, then a federated x402 / MPP endpoint
+  catalog) from the user's own Circle Agent Wallet (MPC self-custody). If you can already
+  do it yourself, just do it — reach for SELAT only for what's genuinely beyond you
+  (capability calls cost real money). Also use when the user mentions SELAT, capability
+  search, x402, or MPP.
 ---
 
 # SELAT — discover, then pay (self-custody)
