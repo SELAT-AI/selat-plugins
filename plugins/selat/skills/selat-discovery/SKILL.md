@@ -15,7 +15,7 @@ description: >-
 > @selat-ai/selat-discovery SKILL.md (bundled inside @selat-ai/selat-cli) remains the
 > source of truth for exact subcommand flags, output shapes, and any commands added
 > after the pinned CLI version. Where they conflict, the published skill wins. The
-> command surface below was verified against @selat-ai/selat-cli@0.7.2 and
+> command surface below was verified against @selat-ai/selat-cli@0.8.0 and
 > @selat-ai/selat-discovery@0.8.2.
 
 SELAT is a capability layer for AI agents. It does two things Zero-style flat indexes
@@ -43,9 +43,10 @@ Payments settle from the user's **own Circle Agent Wallet** (Circle MPC). SELAT 
 holds keys or balance. So:
 
 - If `selat doctor` reports the wallet/config is missing, **walk the user through
-  `selat init`** (the single onboarding command: checks skill, Circle auth, Agent
-  Wallet, selat-pay, config). Have the **user** run it — never create a wallet, never
-  move funds, never paste a key on their behalf.
+  `selat init`** (it installs the Circle CLI if missing, then runs `circle wallet login
+  --type agent` itself — let it prompt the user; do **not** improvise `circle` commands or
+  tell the user to install Circle CLI). Have the **user** run it — never create a wallet,
+  never move funds, never paste a key on their behalf.
 - A `--raw-key` dev mode exists but is **not for production** — do not steer users to it.
 - Before any spend, surface the cost and get the user's go-ahead. Spending limits are
   set via `selat setup-policy` (recommended before deposits > $20); funding via
@@ -106,7 +107,7 @@ wallet — treat the whole command as a spend and confirm first.
 - **Degrade honestly:** if the runner or setup is unavailable, say so; don't fabricate
   results or substitute an unvetted external API.
 
-## Command quick reference (selat-cli v0.7.2)
+## Command quick reference (selat-cli v0.8.0)
 
 | Command | What it does | Money? |
 |---|---|---|
@@ -119,7 +120,7 @@ wallet — treat the whole command as a spend and confirm first.
 | `selat setup-policy` | Set Circle spending limits | no spend, changes policy (user runs it) |
 | `selat history` | Show locally recorded Gateway micropayments | no |
 
-> Flag surface verified against @selat-ai/selat-cli@0.7.2 (`lib/commands/run.mjs`,
+> Flag surface verified against @selat-ai/selat-cli@0.8.0 (`lib/commands/run.mjs`,
 > `lib/commands/skill.mjs`) and @selat-ai/selat-discovery@0.8.2:
 > • `selat run "<intent>"` accepts **only** the intent — no `--max-amount`; the cap is
 >   auto-applied by `rank.mjs --pick` (~50% over catalog price, uncapped hints rejected).

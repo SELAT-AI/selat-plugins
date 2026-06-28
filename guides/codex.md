@@ -3,7 +3,7 @@
 How to install SELAT in Codex.
 
 > Marketplace repo: **[`SELAT-AI/selat-plugins`](https://github.com/SELAT-AI/selat-plugins)**
-> (public). 【VERIFY: exact Codex plugin command names — not yet tested on a live Codex.】
+> (public). _Note: the Codex plugin commands below are adapted from Zero's flow and not yet tested on a live Codex — if they differ, use the npm install._
 > Or install the runner directly: `npm i -g @selat-ai/selat-cli` then `selat init`.
 
 ## Install
@@ -13,8 +13,8 @@ codex plugin marketplace add SELAT-AI/selat-plugins
 codex plugin add selat@selat-plugins
 ```
 
-> 【VERIFY: exact Codex plugin subcommands (`marketplace add` / `plugin add`) against the
-> current Codex CLI — adapted from Zero's documented Codex flow.】
+> _Note: the `marketplace add` / `plugin add` subcommand names are adapted from Zero's documented
+> Codex flow; confirm against your Codex CLI, or use the npm install above._
 
 The plugin reads `plugins/selat/.codex-plugin/plugin.json`, which wires the bundled
 `selat-discovery` skill and the hooks (`hooks/hooks.json`).
@@ -25,7 +25,7 @@ SELAT pays from **your own Circle Agent Wallet** (MPC self-custody) — it never
 your keys or funds, and never creates a wallet for you. Run the onboarding yourself:
 
 ```bash
-selat init      # checks the skill, Circle auth, your Agent Wallet, selat-pay, config
+selat init      # checks skill, Circle auth, Agent Wallet, selat-pay, config — installs Circle CLI if missing
 selat doctor    # confirm everything is green
 ```
 

@@ -8,7 +8,7 @@ SELAT is a two-tier capability layer for AI agents, distributed as a plugin/exte
 
 ## Self-custody (non-negotiable)
 
-Payments settle from the **user's own Circle Agent Wallet** (Circle MPC). SELAT **never** sees a private key, never holds the user's funding balance, and **never creates a wallet or moves funds on the user's behalf** — it detects setup state and *guides* only. If setup is incomplete, walk the **user** through the single onboarding command `selat init`, then `selat doctor` to confirm. Never paste, request, or improvise a private key. Before any spend, surface the cost and get the user's explicit go-ahead.
+Payments settle from the **user's own Circle Agent Wallet** (Circle MPC). SELAT **never** sees a private key, never holds the user's funding balance, and **never creates a wallet or moves funds on the user's behalf** — it detects setup state and *guides* only. If setup is incomplete, walk the **user** through the single onboarding command `selat init`, then `selat doctor` to confirm. `selat init` installs the Circle CLI if missing and runs `circle wallet login --type agent` itself — run/relay it and let it prompt the user; do **not** improvise `circle` commands or tell the user to install Circle CLI manually. Never paste, request, or improvise a private key. Before any spend, surface the cost and get the user's explicit go-ahead.
 
 ## Skills
 

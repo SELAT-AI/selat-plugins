@@ -29,9 +29,9 @@ On load the plugin runs `npm i -g @selat-ai/selat-cli` if `selat` isn't already 
 only), then registers the bundled skill. Hermes plugins are **opt-in** — `--enable` (or answering the
 `Enable 'selat' now?` prompt) is required before it runs.
 
-【VERIFY】 (a) that `hermes plugins install SELAT-AI/selat-plugins` resolves the plugin nested at
-`plugins/selat-hermes/` — if not, clone the repo and copy that directory into `~/.hermes/plugins/selat/`;
-(b) the `ctx` API names (`register_skill`, `inject_message`) against a live Hermes. Not yet tested live.
+_Not yet tested on a live Hermes:_ (a) that `hermes plugins install SELAT-AI/selat-plugins` resolves the
+plugin nested at `plugins/selat-hermes/` — if not, clone the repo and copy that directory into
+`~/.hermes/plugins/selat/`; (b) the `ctx` API names (`register_skill`, `inject_message`).
 
 ## First-run setup (self-custody)
 
@@ -39,7 +39,7 @@ If the plugin can't auto-install (no npm / no network), or to do it by hand:
 
 ```bash
 npm i -g @selat-ai/selat-cli   # the runner (bundles selat-discovery + selat-pay)
-selat init                     # checks the skill, Circle auth, your Agent Wallet, selat-pay, config
+selat init                     # checks skill, Circle auth, Agent Wallet, selat-pay, config — installs Circle CLI if missing
 selat doctor                   # confirm everything is green
 ```
 

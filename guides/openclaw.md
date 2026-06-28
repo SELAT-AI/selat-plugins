@@ -29,9 +29,9 @@ openclaw plugins list
 openclaw plugins inspect selat
 ```
 
-【VERIFY】 exact bundle-install invocation on a live OpenClaw — auto-detection of the
-`.claude-plugin/` bundle is documented, but test with a local install first
-(`openclaw plugins install ./plugins/selat`).
+_Note: the exact bundle-install invocation isn't verified on a live OpenClaw yet — auto-detection
+of the `.claude-plugin/` bundle is documented, but test with a local install first
+(`openclaw plugins install ./plugins/selat`)._
 
 ## First-run setup (self-custody)
 
@@ -40,7 +40,7 @@ funds, and never creates a wallet for you. Run onboarding yourself:
 
 ```bash
 npm i -g @selat-ai/selat-cli
-selat init      # checks the skill, Circle auth, your Agent Wallet, selat-pay, config
+selat init      # checks skill, Circle auth, Agent Wallet, selat-pay, config — installs Circle CLI if missing
 selat doctor    # confirm everything is green
 ```
 

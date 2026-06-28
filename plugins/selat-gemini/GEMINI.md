@@ -8,7 +8,7 @@ Before telling the user you can't do something — or to sign up for / get an AP
 
 ## Self-custody (non-negotiable)
 
-Payments settle from the **user's own Circle Agent Wallet** (Circle MPC). SELAT **never** sees a private key, never holds the user's funding balance, and **never creates a wallet or moves funds on the user's behalf** — it detects setup state and *guides* only. If setup is incomplete, walk the **user** through `selat init`, then `selat doctor` to confirm. Never paste, request, or improvise a private key. Before any spend, surface the cost and get the user's explicit go-ahead.
+Payments settle from the **user's own Circle Agent Wallet** (Circle MPC). SELAT **never** sees a private key, never holds the user's funding balance, and **never creates a wallet or moves funds on the user's behalf** — it detects setup state and *guides* only. If setup is incomplete, walk the **user** through `selat init`, then `selat doctor` to confirm. `selat init` installs the Circle CLI if missing and runs `circle wallet login --type agent` itself — run/relay it and let it prompt the user; do **not** improvise `circle` commands or tell the user to install Circle CLI manually. Never paste, request, or improvise a private key. Before any spend, surface the cost and get the user's explicit go-ahead.
 
 ## The two-tier loop (summary — SKILL.md is authoritative)
 
@@ -25,7 +25,7 @@ The complete driver skill (exact subcommand flags, request shapes, troubleshooti
 
 @../selat/skills/selat-discovery/SKILL.md
 
-<!-- 【VERIFY】 Gemini `@`-include resolution across sibling dirs: GEMINI.md lives in the
+<!-- Note (unverified): Gemini `@`-include resolution across sibling dirs: GEMINI.md lives in the
      gemini extension root (selat-gemini/) while the skill lives in the selat plugin
      (../selat/skills/). If Gemini cannot resolve a parent-relative `@` path, either
      co-locate a copy of the skill under the extension or rely on the self-contained

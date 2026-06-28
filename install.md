@@ -69,7 +69,7 @@ selat init
 selat doctor
 ```
 
-- `selat init` — an 8-step setup: checks prerequisites, the skill, the Circle CLI, logs into the
+- `selat init` — an 8-step setup: checks prerequisites, the skill, **installs the Circle CLI if missing**, logs into the
   **Circle Agent Wallet**, creates agent wallets, checks `selat-pay`, writes config, and reports the
   Gateway balance. It does **not** register harness hooks (the plugin provides those).
 - `selat doctor` — diagnoses skill / PATH / Circle auth / wallet / config. **Exit 0 = ready, exit 1 =

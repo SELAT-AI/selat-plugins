@@ -33,7 +33,7 @@ On the first session it checks your setup and, if needed, asks you to run the si
 onboarding command yourself:
 
 ```bash
-selat init      # checks the skill, Circle auth, your Agent Wallet, selat-pay, config
+selat init      # checks skill, Circle auth, Agent Wallet, selat-pay, config — installs Circle CLI if missing
 selat doctor    # confirm everything is green
 ```
 
@@ -44,4 +44,4 @@ runs read-only discovery; any paid call asks for your approval first.
 
 - The SELAT runner (`@selat-ai/selat-cli`) is checked at the start of each session and
   updated when a newer version is published.
-- Pin a version with `SELAT_CLI_SPEC=0.7.2` in your environment.
+- Pin a version with `SELAT_CLI_SPEC=0.8.0` in your environment.

@@ -19,7 +19,7 @@ never sees a private key or holds your funding balance, and nothing here creates
 for you automatically — you run onboarding yourself:
 
 ```bash
-selat init        # checks the skill, Circle auth, your Agent Wallet, selat-pay, config
+selat init        # checks skill, Circle auth, Agent Wallet, selat-pay, config — installs Circle CLI if missing
 selat doctor      # confirm everything is green
 selat setup-policy   # (recommended) set Circle spending limits before deposits > $20
 ```
@@ -42,4 +42,4 @@ guardrails. If your harness supports it, you can also copy
 directory.
 
 > Note: there is **no SELAT MCP connector** today, so there's nothing to add to an MCP
-> config. 【VERIFY: SELAT has no MCP connector yet】
+> config.

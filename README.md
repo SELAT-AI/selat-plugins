@@ -68,7 +68,7 @@ auto-approved; anything that spends or moves money (`selat run`, `selat skill ru
 After install, every harness runs the same first-time setup (self-custody):
 
 ```bash
-selat init      # checks the skill, Circle auth, your Agent Wallet, selat-pay, config
+selat init      # checks skill, Circle auth, Agent Wallet, selat-pay, config — installs Circle CLI if missing
 selat doctor    # confirm everything is green
 ```
 
@@ -112,4 +112,4 @@ SessionStart hook; on the context-file harnesses the agent guides the user throu
 `selat init` (self-custody — never auto-provisioned).
 
 > **No MCP connector.** SELAT has no MCP server today, so there is no `.mcp.json` and no
-> `mcpServers` block anywhere in this repo. 【VERIFY: SELAT has no MCP connector yet】
+> `mcpServers` block anywhere in this repo.
