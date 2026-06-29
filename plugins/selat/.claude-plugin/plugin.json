@@ -1,6 +1,6 @@
 {
   "name": "selat",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Discover and call paid AI capabilities via a two-tier loop — vetted multi-step skills first, then a federated x402 / MPP endpoint catalog (image/video/audio generation, translation, web scraping, data enrichment, real-time data, on-chain actions). Payments settle from your own Circle Agent Wallet (MPC self-custody — SELAT never holds your keys or funds). Wraps the published @selat-ai/selat-cli (bundles @selat-ai/selat-discovery + @selat-ai/selat-pay) and ships the 'selat-discovery' driver skill.",
   "author": { "name": "SELAT", "url": "https://selat.ai" },
   "homepage": "https://selat.ai",
