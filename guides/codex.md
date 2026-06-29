@@ -35,7 +35,7 @@ shim path (also exported as `$SELAT_RUNNER` where supported).
 
 ## Notes
 
-- Read-only commands (`selat doctor`, `selat history`, `selat skill list`) are
+- Read-only commands (`selat search`, `selat doctor`, `selat history`, `selat skill list`) are
   auto-approved by the PreToolUse hook. Anything that spends or moves money
   (`selat run`, `selat skill run`, `selat fund`, `selat setup-policy`) requires manual
   approval.
