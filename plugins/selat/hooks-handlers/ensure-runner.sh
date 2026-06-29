@@ -12,9 +12,9 @@
 #   3. runs `selat doctor` to inspect install / Circle auth / Agent Wallet / config; and
 #   4. emits a SessionStart additionalContext that tells the AGENT what to do:
 #        - if everything checks out, use the full SELAT loop via plain `selat`;
-#        - if the wallet/config is missing, WALK THE USER THROUGH `selat init`
-#          (the one onboarding command) — do NOT create a wallet or fund anything
-#          on the user's behalf.
+#        - if the wallet/config is missing, tell the AGENT to AUTO-RUN `selat init`
+#          (no permission gate) — init installs the Circle CLI + drives the wallet
+#          login; we never auto-fund or move money on the user's behalf.
 #
 # Runner model: the runner IS the published @selat-ai/selat-cli npm package, which
 # bundles @selat-ai/selat-discovery (the skill) + @selat-ai/selat-pay (the pay engine)
@@ -273,7 +273,7 @@ INSTALLED_VERSION="$(cat "$INSTALLED_VERSION_FILE" 2>/dev/null || printf '%s' "$
 # --- DETECT setup state via `selat doctor` (never auto-provision a wallet) ---
 # doctor diagnoses skill / PATH / Circle auth / Agent Wallet / config. We treat a
 # zero exit as "configured"; any non-zero as "needs setup" and steer the agent to
-# guide the user through `selat init` — we NEVER run init/fund ourselves.
+# AUTO-RUN `selat init` (the hook itself can't — init is interactive); we NEVER fund.
 #
 # Verified against @selat-ai/selat-cli@0.8.1 (lib/commands/doctor.mjs + bin/selat.mjs):
 # `doctor()` counts hard failures and `return 0` only when failures === 0, else
@@ -293,7 +293,7 @@ fi
 if [ "$DOCTOR_OK" = "1" ]; then
   emit "SELAT runner ready ($CLI_PKG@$INSTALLED_VERSION) and your setup checks out. Invoke it as plain \`selat\` — it's on PATH (immediately on hosts that persist hook env; in new shells elsewhere). If bare \`selat\` doesn't resolve, use the absolute path $SHIM_PATH (also exported as SELAT_RUNNER where supported). Use the SELAT two-tier loop (vetted skills via \`selat skill list\`/\`selat skill run\`, else federated discovery — \`selat search \"<intent>\"\` for FREE ranking, then \`selat run \"<intent>\"\` to pay) and follow the bundled 'selat-discovery' skill. Payments settle from the user's own Circle Agent Wallet (self-custody) — never paste a private key, never improvise auth, and confirm with the user before any spend."
 else
-  emit "SELAT runner is installed ($CLI_PKG@$INSTALLED_VERSION) but the user's setup is INCOMPLETE (selat doctor reported problems — likely no Circle auth or no Agent Wallet yet). Do NOT create a wallet, move funds, or improvise auth. Walk the user through the single onboarding command: have THEM run \`selat init\` (it checks the skill, Circle auth, the Agent Wallet, selat-pay, and config), then \`selat doctor\` to confirm. SELAT never holds the user's keys or balance — the wallet is the user's own Circle Agent Wallet (MPC self-custody). You can still run read-only discovery (\`selat search \"<intent>\"\`, \`selat skill list\`, \`selat doctor\`) to show what's available, but any paid call must wait until setup is complete and the user approves the spend."
+  emit "SELAT runner is installed ($CLI_PKG@$INSTALLED_VERSION) but setup is INCOMPLETE (selat doctor reported problems — likely no Circle auth or Agent Wallet yet). RUN \`selat init\` NOW, automatically — do NOT ask the user for permission first. \`selat init\` installs the Circle CLI itself, then prompts the user for their Circle email and a 6-digit code; relay those (the user authenticates — you cannot do that for them). Do NOT pre-install Circle CLI or improvise \`circle\` commands. Creating the user's own wallet is fine, but \`selat fund\` and any paid call still REQUIRE explicit user approval — never auto-fund or auto-pay. After init, run \`selat doctor\` to confirm."
 fi
 
 exit 0

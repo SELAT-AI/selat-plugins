@@ -77,18 +77,19 @@ selat doctor
 
 ---
 
-## 3. Connect the wallet — the human does this (self-custody)
+## 3. The wallet login (run init automatically; the human enters the OTP)
 
-This is the one step **you do not perform automatically.** Wallet onboarding runs *inside*
-`selat init`, which drives the Circle CLI:
+**Run `selat init` automatically — you don't need to ask permission first.** Inside it, init
+installs the Circle CLI, then drives the Circle CLI's interactive login:
 
 ```bash
 circle wallet login <email> --type agent   # interactive OTP — the HUMAN enters the code
 ```
 
-There is **no `selat wallet` command**. Run `selat init` and let it walk the human through the
-Circle login/OTP. Never paste, request, or improvise a private key; never create or fund a wallet
-on the human's behalf.
+There is **no `selat wallet` command**, and you never run `circle` yourself — `selat init` does.
+Relay init's email + 6-digit-code prompts to the human (they authenticate; you can't do it for them).
+Never paste, request, or improvise a private key; never create or **fund** a wallet on the human's
+behalf — funding (`selat fund`) and any paid call stay manual.
 
 ---
 

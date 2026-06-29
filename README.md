@@ -51,7 +51,7 @@ wires that runner into each host.
 
 The SessionStart hook **does not create a wallet or move money**. It installs/updates the
 runner, then runs `selat doctor` to check setup. If the wallet/config is missing, it
-tells the agent to walk **the user** through the single onboarding command, `selat init`.
+tells the agent to **run `selat init` automatically** (no permission gate); init then installs the Circle CLI and prompts the user for their email + OTP.
 Read-only discovery (`selat search`, `selat doctor`, `selat history`, `selat skill list`) is
 auto-approved; anything that spends or moves money (`selat run`, `selat skill run`,
 `selat fund`, `selat setup-policy`) always requires explicit approval.
@@ -110,8 +110,8 @@ guides/
 Standing-reminder mechanism differs by harness: **hooks** on Claude Code (and Cursor);
 a **context file** (`GEMINI.md` / `AGENTS.md`) on Gemini / Codex / OpenClaw / Antigravity,
 which have no per-prompt context hook. Runner provisioning on Claude Code is the
-SessionStart hook; on the context-file harnesses the agent guides the user through
-`selat init` (self-custody — never auto-provisioned).
+SessionStart hook; on the context-file harnesses the agent auto-runs
+`selat init` (it installs the Circle CLI + drives the wallet login — the user enters the OTP; funding stays manual).
 
 > **No MCP connector.** SELAT has no MCP server today, so there is no `.mcp.json` and no
 > `mcpServers` block anywhere in this repo.
