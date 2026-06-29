@@ -63,15 +63,19 @@ esac
 # Whitelist ONLY read-only, non-paying subcommands.
 #   doctor   — diagnostics, no money, no wallet creation
 #   history  — shows locally recorded micropayments (read-only)
+#   search   — FREE discovery: ranks catalogue endpoints, no wallet/signature/spend (the
+#              read-only front-half of `run` with no `--pick`/pay step — never settles)
 #   skill    — only the read-only `skill list`; skill run / new / validate fall through
 #              (`skill run` pays; `new`/`validate` author/write files)
 # Everything else — run (discovery+pay pipe; the pay half moves money), fund,
 # setup-policy, init (real Circle onboarding / wallet), and any unknown — is left for
 # manual approval. We intentionally do NOT auto-approve `run` even though its discovery
-# half is read-only: the same invocation also pays, so it must stay manual.
+# half is read-only: the same invocation also pays, so it must stay manual. `search` is
+# safe precisely because it has no pay path at all.
 case "$sub" in
   doctor)  ;;
   history) ;;
+  search)  ;;
   skill)
     case "$arg" in
       list) ;;

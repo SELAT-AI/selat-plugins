@@ -29,7 +29,8 @@ selat setup-policy   # (recommended) set Circle spending limits before deposits 
 ```bash
 selat skill list             # browse vetted multi-step skills (read-only)
 selat skill run <name> …      # run a vetted skill (pays from your wallet)
-selat run "<intent>"          # fall back to the federated x402/MPP catalog (pays)
+selat search "<intent>"       # FREE discovery — rank federated x402/MPP endpoints (no spend)
+selat run "<intent>"          # pay for the top match from the federated catalog (pays)
 selat history                 # review recorded micropayments
 ```
 

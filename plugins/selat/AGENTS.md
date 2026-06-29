@@ -21,9 +21,9 @@ This plugin provides the following skill. Read the SKILL.md to understand how to
 All SELAT actions go through the `selat` runner (the published `@selat-ai/selat-cli`, which bundles the discovery skill and the `selat-pay` engine). Resolve it as plain `selat` (on PATH after onboarding), else `$SELAT_RUNNER`; if neither resolves, SELAT is unavailable — tell the user rather than improvising or hand-rolling x402 requests.
 
 1. **Tier 1 — vetted skills (preferred):** `selat skill list` (read-only), then `selat skill run <name> [--max-amount <usd>] [--chain <key>]` (MAY PAY — confirm first).
-2. **Tier 2 — federated catalog (fallback):** `selat run "<intent>"` discovers + ranks + pays for an x402/MPP service in one pipe (MAY PAY — surface the price and confirm before spend).
+2. **Tier 2 — federated catalog (fallback):** `selat search "<intent>"` ranks matching x402/MPP endpoints for FREE (read-only — no wallet, no spend); `selat run "<intent>"` then discovers + ranks + **pays** in one pipe (MAY PAY — surface the price and confirm before spend). Lead with `search` to show options + price before any spend.
 
-Read-only diagnostics: `selat doctor`, `selat history`, `selat skill list`. Money actions (`selat run`, `selat skill run`, `selat fund`, `selat setup-policy`) always require explicit user approval.
+Read-only diagnostics & discovery: `selat doctor`, `selat history`, `selat skill list`, `selat search`. Money actions (`selat run`, `selat skill run`, `selat fund`, `selat setup-policy`) always require explicit user approval.
 
 ## Tool Name Mapping
 

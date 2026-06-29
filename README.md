@@ -41,6 +41,8 @@ wires that runner into each host.
 - **Two-tier discovery.** SELAT checks **vetted, evaluated multi-step skills** first
   (`SELAT-AI/selat-skills`), then falls back to a **federated x402 / MPP endpoint
   catalog** (Circle + Agentic Market + MPP, merged). A flat index is one-tier.
+  Discovery itself is **free** — `selat search "<intent>"` ranks candidates with no
+  wallet or spend; only `selat run` / `selat skill run` pay.
 - **Self-custody.** Payments settle from the **user's own Circle Agent Wallet** (MPC).
   SELAT never holds keys or balance. Because a wallet is real onboarding, the plugin
   **detects and guides** — it never silently provisions a wallet or moves funds.
@@ -50,7 +52,7 @@ wires that runner into each host.
 The SessionStart hook **does not create a wallet or move money**. It installs/updates the
 runner, then runs `selat doctor` to check setup. If the wallet/config is missing, it
 tells the agent to walk **the user** through the single onboarding command, `selat init`.
-Read-only discovery (`selat doctor`, `selat history`, `selat skill list`) is
+Read-only discovery (`selat search`, `selat doctor`, `selat history`, `selat skill list`) is
 auto-approved; anything that spends or moves money (`selat run`, `selat skill run`,
 `selat fund`, `selat setup-policy`) always requires explicit approval.
 
