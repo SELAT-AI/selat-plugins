@@ -20,7 +20,7 @@ description: >-
 > @selat-ai/selat-discovery SKILL.md (bundled inside @selat-ai/selat-cli) remains the
 > source of truth for exact subcommand flags, output shapes, and any commands added
 > after the pinned CLI version. Where they conflict, the published skill wins. The
-> command surface below was verified against @selat-ai/selat-cli@0.8.0 and
+> command surface below was verified against @selat-ai/selat-cli@0.8.1 and
 > @selat-ai/selat-discovery@0.8.2.
 
 SELAT is a capability layer for AI agents. It does two things Zero-style flat indexes
@@ -112,7 +112,7 @@ wallet — treat the whole command as a spend and confirm first.
 - **Degrade honestly:** if the runner or setup is unavailable, say so; don't fabricate
   results or substitute an unvetted external API.
 
-## Command quick reference (selat-cli v0.8.0)
+## Command quick reference (selat-cli v0.8.1)
 
 | Command | What it does | Money? |
 |---|---|---|
@@ -125,7 +125,7 @@ wallet — treat the whole command as a spend and confirm first.
 | `selat setup-policy` | Set Circle spending limits | no spend, changes policy (user runs it) |
 | `selat history` | Show locally recorded Gateway micropayments | no |
 
-> Flag surface verified against @selat-ai/selat-cli@0.8.0 (`lib/commands/run.mjs`,
+> Flag surface verified against @selat-ai/selat-cli@0.8.1 (`lib/commands/run.mjs`,
 > `lib/commands/skill.mjs`) and @selat-ai/selat-discovery@0.8.2:
 > • `selat run "<intent>"` accepts **only** the intent — no `--max-amount`; the cap is
 >   auto-applied by `rank.mjs --pick` (~50% over catalog price, uncapped hints rejected).
