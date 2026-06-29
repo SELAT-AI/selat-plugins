@@ -25,12 +25,14 @@ claude plugin marketplace add SELAT-AI/selat-plugins
 claude plugin install selat@selat-plugins
 ```
 
-## First-run setup (self-custody — you do this once)
+## First-run setup (self-custody)
 
-SELAT settles payments from **your own Circle Agent Wallet** (MPC self-custody) — SELAT
-never holds your keys or your balance. The plugin will **not** create a wallet for you.
-On the first session it checks your setup and, if needed, asks you to run the single
-onboarding command yourself:
+**Discovery is free and needs no setup** — once the plugin is installed, the agent runs
+`selat search` / `selat skill list` immediately, no wallet required. You only set up a wallet
+to actually **pay** for a result. SELAT settles payments from **your own Circle Agent Wallet**
+(MPC self-custody) — it never holds your keys or balance and never creates a wallet for you.
+When the first paid call is needed, the agent auto-runs the onboarding command (you enter the
+email + OTP):
 
 ```bash
 selat init      # checks skill, Circle auth, Agent Wallet, selat-pay, config — installs Circle CLI if missing

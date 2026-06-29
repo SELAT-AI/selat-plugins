@@ -16,7 +16,8 @@ skill, and the `@selat-ai/selat-pay` pay engine.
 
 SELAT settles payments from **your own Circle Agent Wallet** (MPC self-custody). SELAT
 never sees a private key or holds your funding balance, and nothing here creates a wallet
-for you automatically — you run onboarding yourself:
+for you automatically. Discovery is free (`selat search` — no wallet); the wallet is only for
+paying. To set it up, run onboarding yourself:
 
 ```bash
 selat init        # checks skill, Circle auth, Agent Wallet, selat-pay, config — installs Circle CLI if missing
