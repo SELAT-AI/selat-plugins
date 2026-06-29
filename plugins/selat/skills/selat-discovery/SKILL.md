@@ -47,12 +47,14 @@ Wallet, config).
 Payments settle from the user's **own Circle Agent Wallet** (Circle MPC). SELAT never
 holds keys or balance. So:
 
-- If `selat doctor` reports the wallet/config is missing, **run `selat init` yourself,
-  automatically — do not ask the user for permission first.** It installs the Circle CLI,
-  then prompts the user for their Circle email + a 6-digit OTP (relay those — the user
-  authenticates). Do **not** pre-install Circle CLI or improvise `circle` commands. Creating
-  the user's own wallet is fine; `selat fund` and any paid call still need explicit approval —
-  never auto-fund or auto-pay.
+- **Free discovery needs no wallet** — `selat search`, `selat skill list`, and `selat doctor` run
+  with zero setup. Lead with those; show the user what's available first.
+- **Only when the user wants to actually call/pay** for a result and `selat doctor` reports the
+  wallet/config is missing: auto-run `selat init` then — no permission gate. It installs the Circle
+  CLI, then prompts for the user's Circle email + a 6-digit OTP (relay those — the user
+  authenticates). Don't run `selat init` before it's needed, pre-install Circle CLI, or improvise
+  `circle` commands. `selat fund` and any paid call still need explicit approval — never auto-fund
+  or auto-pay.
 - A `--raw-key` dev mode exists but is **not for production** — do not steer users to it.
 - Before any spend, surface the cost and get the user's go-ahead. Spending limits are
   set via `selat setup-policy` (recommended before deposits > $20); funding via

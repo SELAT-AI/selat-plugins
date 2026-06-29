@@ -77,9 +77,11 @@ selat doctor
 
 ---
 
-## 3. The wallet login (run init automatically; the human enters the OTP)
+## 3. The wallet login (auto-run init *when a paid call is needed*; the human enters the OTP)
 
-**Run `selat init` automatically — you don't need to ask permission first.** Inside it, init
+**Discovery is free and needs no wallet** — `selat search`, `selat skill list`, and `selat doctor`
+work immediately; lead with those. **Only when the user wants to actually call/pay** for a result do
+you set up the wallet: **run `selat init` automatically then — no permission gate.** Inside it, init
 installs the Circle CLI, then drives the Circle CLI's interactive login:
 
 ```bash
