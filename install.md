@@ -105,14 +105,18 @@ selat fund           # deposit USDC into Gateway — this MOVES money; the human
 
 Read-only first (no payment):
 ```bash
-selat skill list     # vetted multi-step skills
-selat history        # locally recorded Gateway micropayments
+selat skill list                 # vetted multi-step skills
+selat search "<what you need>"   # FREE discovery — rank endpoints for a capability, no wallet, no spend
+selat history                    # locally recorded Gateway micropayments
 ```
 
 Then a real task (this **pays** from the human's Gateway balance — confirm first, start small/cheap):
 ```bash
 selat run "<what you need>"   # discover + rank + pay for an x402/MPP service in one pipe
 ```
+`selat run` is the paid follow-up to `selat search`: same ranker, but it also picks the top
+match and settles. Lead with `selat search` to show the human what's available and the price
+before any spend.
 
 ---
 
