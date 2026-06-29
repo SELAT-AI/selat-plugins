@@ -45,4 +45,5 @@ selat doctor    # confirm everything is green
 ```
 
 OpenClaw hooks are SDK-based (TypeScript), not file-based, so SELAT does **not** auto-provision the
-runner on OpenClaw — the `AGENTS.md` context guides the agent to walk you through `selat init`.
+runner on OpenClaw — the `AGENTS.md` context tells the agent to lead with free discovery
+(`selat search`, no wallet) and to auto-run `selat init` only when a paid call is needed (the user enters the OTP).

@@ -24,7 +24,8 @@ The Gemini variant differs from the Claude/Codex plugin:
 - **No hooks.** Gemini CLI loads `GEMINI.md` once per session as standing context (the
   idiomatic mechanism), so SELAT's availability reminder lives in `GEMINI.md`, not a
   per-prompt hook. Runner provisioning is not auto-run on Gemini: `GEMINI.md` instructs the
-  agent to guide the user through `selat init` (self-custody — never auto-provisioned).
+  agent to lead with free discovery (`selat search`, no wallet) and to auto-run `selat init`
+  only when the user wants to actually pay (self-custody — the user enters the OTP; funding stays manual).
 - _Deferred:_ a Gemini `SessionStart` provisioning hook (like Claude Code's) is possible but
   needs a Gemini-shaped output envelope + its own bundled script; not worth adding until it
   can be validated against a real Gemini CLI. `GEMINI.md` + `selat init` covers it today.

@@ -35,6 +35,9 @@ plugin nested at `plugins/selat-hermes/` — if not, clone the repo and copy tha
 
 ## First-run setup (self-custody)
 
+Discovery is free and needs no wallet — `selat search` / `selat skill list` work as soon as the
+runner is installed; the wallet (`selat init`) is only needed to actually pay.
+
 If the plugin can't auto-install (no npm / no network), or to do it by hand:
 
 ```bash

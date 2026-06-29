@@ -47,11 +47,14 @@ Wallet, config).
 Payments settle from the user's **own Circle Agent Wallet** (Circle MPC). SELAT never
 holds keys or balance. So:
 
-- If `selat doctor` reports the wallet/config is missing, **walk the user through
-  `selat init`** (it installs the Circle CLI if missing, then runs `circle wallet login
-  --type agent` itself — let it prompt the user; do **not** improvise `circle` commands or
-  tell the user to install Circle CLI). Have the **user** run it — never create a wallet,
-  never move funds, never paste a key on their behalf.
+- **Free discovery needs no wallet** — `selat search`, `selat skill list`, and `selat doctor` run
+  with zero setup. Lead with those; show the user what's available first.
+- **Only when the user wants to actually call/pay** for a result and `selat doctor` reports the
+  wallet/config is missing: auto-run `selat init` then — no permission gate. It installs the Circle
+  CLI, then prompts for the user's Circle email + a 6-digit OTP (relay those — the user
+  authenticates). Don't run `selat init` before it's needed, pre-install Circle CLI, or improvise
+  `circle` commands. `selat fund` and any paid call still need explicit approval — never auto-fund
+  or auto-pay.
 - A `--raw-key` dev mode exists but is **not for production** — do not steer users to it.
 - Before any spend, surface the cost and get the user's go-ahead. Spending limits are
   set via `selat setup-policy` (recommended before deposits > $20); funding via
@@ -124,7 +127,7 @@ wallet — treat the whole command as a spend and confirm first.
 | Command | What it does | Money? |
 |---|---|---|
 | `selat doctor` | Diagnose setup (skill, PATH, auth, wallet, config) | no |
-| `selat init` | One-time onboarding: skill, Circle auth, Agent Wallet, selat-pay, config | sets up wallet (user runs it) |
+| `selat init` | One-time onboarding: installs Circle CLI, skill, Circle auth, Agent Wallet, selat-pay, config | agent auto-runs; user does the OTP |
 | `selat skill list` | List/browse vetted skills | no |
 | `selat skill run <name>` | Run a vetted multi-step skill | **yes** |
 | `selat search "<intent>"` | Discover + rank endpoints for a capability (FREE; no wallet, no spend) | no |

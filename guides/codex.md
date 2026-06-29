@@ -22,7 +22,8 @@ The plugin reads `plugins/selat/.codex-plugin/plugin.json`, which wires the bund
 ## First-run setup (self-custody)
 
 SELAT pays from **your own Circle Agent Wallet** (MPC self-custody) — it never holds
-your keys or funds, and never creates a wallet for you. Run the onboarding yourself:
+your keys or funds, and never creates a wallet for you. Discovery is free (`selat search`,
+`selat skill list` — no wallet); you only need the wallet to actually pay. To set it up:
 
 ```bash
 selat init      # checks skill, Circle auth, Agent Wallet, selat-pay, config — installs Circle CLI if missing
