@@ -86,12 +86,19 @@ If a vetted skill covers the task, prefer it: it's a known-good, capped workflow
 ### Tier 2 — federated endpoint catalog (fallback)
 
 If no skill fits, fall back to the federated x402 / MPP endpoint catalog (Circle +
-Agentic Market + MPP, merged):
+Agentic Market + MPP, merged). Discover first (free), then pay:
 
 ```
+selat search "<intent>"      # FREE discovery — rank candidate endpoints, no wallet,
+                             #   no spend, no signature. The "search SELAT first" step.
+                             #   --top N (default 5) · --json (agents/hooks) · --explain
 selat run "<intent>"         # discover + rank + pay for an x402 service in one pipe
                              #   (MAY PAY — surface the price and confirm before spend)
 ```
+
+`selat search` is the read-only front-half of `selat run` (same ranker, no `--pick`/pay
+step). Lead with it to show the user what's available and the price *before* committing to
+a spend; `selat run` then ranks + pays in one shot once they approve.
 
 Use `selat run` for one-off capabilities the skill registry doesn't yet cover. It takes
 **only the intent string** — there is no user-facing `--max-amount` flag here. The cost
@@ -120,6 +127,7 @@ wallet — treat the whole command as a spend and confirm first.
 | `selat init` | One-time onboarding: skill, Circle auth, Agent Wallet, selat-pay, config | sets up wallet (user runs it) |
 | `selat skill list` | List/browse vetted skills | no |
 | `selat skill run <name>` | Run a vetted multi-step skill | **yes** |
+| `selat search "<intent>"` | Discover + rank endpoints for a capability (FREE; no wallet, no spend) | no |
 | `selat run "<intent>"` | Discover + rank + pay for an x402 service | **yes** |
 | `selat fund` | Top up Circle Gateway balance | **yes** |
 | `selat setup-policy` | Set Circle spending limits | no spend, changes policy (user runs it) |
@@ -127,6 +135,10 @@ wallet — treat the whole command as a spend and confirm first.
 
 > Flag surface verified against @selat-ai/selat-cli@0.8.1 (`lib/commands/run.mjs`,
 > `lib/commands/skill.mjs`) and @selat-ai/selat-discovery@0.8.2:
+> • `selat search "<intent>"` (`lib/commands/search.mjs`) is FREE discovery — the same
+>   ranker as `selat run` in its no-`--pick` mode, so it never settles. Flags: `--top N`
+>   (default 5), `--json` (for agents/hooks), `--explain` (why each match is/isn't
+>   payable), `--refresh`.
 > • `selat run "<intent>"` accepts **only** the intent — no `--max-amount`; the cap is
 >   auto-applied by `rank.mjs --pick` (~50% over catalog price, uncapped hints rejected).
 > • `selat skill run <name>` accepts the skill's params as `--flags` plus three reserved
