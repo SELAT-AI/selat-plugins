@@ -44,6 +44,25 @@ selat init      # checks skill, Circle auth, Agent Wallet, selat-pay, config —
 selat doctor    # confirm everything is green
 ```
 
-OpenClaw hooks are SDK-based (TypeScript), not file-based, so SELAT does **not** auto-provision the
-runner on OpenClaw — the `AGENTS.md` context tells the agent to lead with free discovery
-(`selat search`, no wallet) and to auto-run `selat init` only when a paid call is needed (the user enters the OTP).
+The `AGENTS.md` context tells the agent to lead with free discovery (`selat search`, no wallet) and to
+auto-run `selat init` only when a paid call is needed (the user enters the OTP).
+
+## `selat` on PATH in OpenClaw sessions
+
+OpenClaw doesn't persist a SessionStart hook's env (no `CLAUDE_ENV_FILE`) and runs agent commands in a
+shell that doesn't source `~/.zshrc` / `~/.bash_profile` — so neither `$SELAT_RUNNER` nor a shell-rc
+PATH line reaches the session, and bare `selat` won't resolve on its own even after the runner is
+provisioned. To bridge that, when OpenClaw runs the bundle's SessionStart hook it now **symlinks the
+runner shim into `~/.openclaw/bin/selat`** (a dir already on OpenClaw's PATH), so `selat` resolves in
+every session. The symlink persists across sessions.
+
+If `selat` still isn't found (the hook didn't run, or `~/.openclaw/bin` isn't on your PATH), link it by
+hand — at the plugin shim if present, else the global npm bin:
+
+```bash
+mkdir -p ~/.openclaw/bin
+ln -sf ~/.cache/selat-plugins/runtime/bin/selat ~/.openclaw/bin/selat   # plugin-provisioned shim
+# …or if you installed the runner globally:
+# ln -sf "$(npm prefix -g)/bin/selat" ~/.openclaw/bin/selat
+selat doctor
+```

@@ -266,6 +266,24 @@ if [ "${SELAT_PATH_AUTOADD:-1}" != "0" ]; then
       ;;
     *)    log "unrecognized shell '${SHELL:-}' — to put selat on PATH add: $PATH_LINE" ;;
   esac
+
+  # Expose `selat` via known per-harness bin dirs that are already on PATH. Some
+  # harnesses don't persist the hook's env (no CLAUDE_ENV_FILE) AND run agent commands
+  # in a shell that doesn't source ~/.zshrc/.bash_profile — so neither SELAT_RUNNER nor
+  # the rc PATH line above ever reaches the session, and bare `selat` won't resolve. For
+  # those, symlink the shim into the harness's own on-PATH bin dir (the symlink persists
+  # on disk and keeps pointing at the stable shim path across sessions). Extend the list
+  # as more such harnesses appear.
+  #   OpenClaw: ~/.openclaw/bin — verified on a live OpenClaw session (that dir is on
+  #             PATH; a `selat` symlink there resolves). Guarded on ~/.openclaw existing
+  #             so this is a no-op on every other host.
+  link_into() {                       # $1 = a bin dir on the harness's PATH
+    mkdir -p "$1" 2>/dev/null || return 0
+    if ln -sf "$SHIM_PATH" "$1/selat" 2>/dev/null; then
+      log "linked selat into $1 (on PATH for that harness)"
+    fi
+  }
+  [ -d "$HOME/.openclaw" ] && link_into "$HOME/.openclaw/bin"
 fi
 
 INSTALLED_VERSION="$(cat "$INSTALLED_VERSION_FILE" 2>/dev/null || printf '%s' "$VERSION")"
