@@ -66,3 +66,18 @@ ln -sf ~/.cache/selat-plugins/runtime/bin/selat ~/.openclaw/bin/selat   # plugin
 # ln -sf "$(npm prefix -g)/bin/selat" ~/.openclaw/bin/selat
 selat doctor
 ```
+
+## Updating
+
+**OpenClaw has no auto-update** — an installed bundle refreshes only when you ask it to:
+
+```bash
+openclaw plugins update selat     # re-resolves the marketplace source → latest main
+# or update everything:
+openclaw plugins update --all
+selat doctor                      # confirm after updating
+```
+
+A fix that lives in the plugin **hook** (like the PATH symlink above) reaches an existing install
+**only after** you run this. The **runner** (`@selat-ai/selat-cli`) is separate — the SessionStart hook
+pulls the latest runner each session, so runner-side changes arrive without a bundle update.

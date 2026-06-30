@@ -149,5 +149,31 @@ before any spend.
 
 ---
 
+## 6. Updating
+
+There are **two layers**, and they update on different channels:
+
+- **The runner** (`@selat-ai/selat-cli` — the `selat` binary + pay engine). On harnesses where the
+  SessionStart hook runs (Claude Code, Cursor, OpenClaw), the hook tracks `latest` and **auto-refreshes
+  the runner** each session — no action needed. Manual bump: `npm i -g @selat-ai/selat-cli@latest`.
+- **The plugin bundle** (this repo — hooks, guides, the driver skill, manifests). This updates through
+  **your harness's plugin manager**, and the cadence varies by harness (see below).
+
+| Harness | Update the bundle |
+|---|---|
+| Claude Code | `/plugin marketplace update SELAT-AI/selat-plugins` (refreshes the marketplace; re-install if prompted) |
+| Codex | re-run the marketplace add/install, or your Codex plugin-update command |
+| Cursor | Customize → Marketplace → update `selat` (or reinstall) |
+| Gemini CLI | already auto-updates via `--auto-update` at install time |
+| **OpenClaw** | **`openclaw plugins update selat`** (or `openclaw plugins update --all`) — **OpenClaw has no auto-update; the bundle only refreshes when you run this.** |
+| Hermes | `hermes plugins install SELAT-AI/selat-plugins --enable` again to overwrite in place |
+
+> **OpenClaw note.** Because OpenClaw never auto-updates a bundle, a fix that lives in the plugin hook
+> (e.g. a PATH or sandbox change) won't reach an existing install until you run `openclaw plugins update
+> selat`. Runner-side fixes still arrive automatically (the hook pulls the latest `selat-cli` each
+> session). Run `selat doctor` after updating to confirm.
+
+---
+
 _SELAT's two-tier loop: prefer a **vetted skill** (`selat skill run …`), else the **federated x402/MPP
 catalog** (`selat run …`). Both may pay — always surface cost and get the human's OK._
