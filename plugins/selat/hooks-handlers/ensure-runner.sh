@@ -290,10 +290,31 @@ if "$SHIM_PATH" doctor >&2 2>&1; then
   DOCTOR_OK=1
 fi
 
+# --- detect blocked egress to the SELAT catalog (e.g. an agent network sandbox) ---
+# `selat search`/`run` fetch the federated catalog over HTTPS (api.circle.com, plus
+# router.selat.ai for the sidecars). Some harnesses sandbox agent shell commands and
+# DENY outbound network by default — notably Cursor 2.5+ — so those hosts 403 and
+# discovery dies with "fetch failed" even though discovery is otherwise free. Probe the
+# real public discovery endpoint once (the same fetch `selat search` makes): a reachable
+# HTTP code (2xx/3xx/401/404 — host answered) means we're clear; 403/407 or no response
+# means egress is blocked, so we hand the agent the exact allowlist fix to relay rather
+# than let it dead-end or improvise an API key. Empty/`000` from a missing curl can't
+# happen — we guard on curl first (and skip the probe, staying quiet, if it's absent).
+NET_NOTE=""
+if command -v curl >/dev/null 2>&1; then
+  probe_code="$(curl -s -o /dev/null -m 4 -w '%{http_code}' \
+    'https://api.circle.com/v2/x402/discovery/resources' 2>/dev/null || true)"
+  case "${probe_code:-000}" in
+    000|403|407)
+      NET_NOTE=" NETWORK: outbound HTTPS to the SELAT catalog (api.circle.com) is BLOCKED here (probe got '${probe_code:-000}'), so \`selat search\`/\`selat run\` will fail with 'fetch failed'. This is typical of an agent network sandbox that denies egress by default (e.g. Cursor 2.5+). FIX to relay to the user: add .cursor/sandbox.json (or ~/.cursor/sandbox.json) containing {\"networkPolicy\":{\"default\":\"deny\",\"allow\":[\"api.circle.com\",\"*.selat.ai\",\"*.npmjs.org\"]}} then retry — or run the selat command in a normal terminal outside the sandbox (see guides/cursor.md). Do NOT work around this with an API key or a third-party tool."
+      ;;
+  esac
+fi
+
 if [ "$DOCTOR_OK" = "1" ]; then
-  emit "SELAT runner ready ($CLI_PKG@$INSTALLED_VERSION) and your setup checks out. Invoke it as plain \`selat\` — it's on PATH (immediately on hosts that persist hook env; in new shells elsewhere). If bare \`selat\` doesn't resolve, use the absolute path $SHIM_PATH (also exported as SELAT_RUNNER where supported). Use the SELAT two-tier loop (vetted skills via \`selat skill list\`/\`selat skill run\`, else federated discovery — \`selat search \"<intent>\"\` for FREE ranking, then \`selat run \"<intent>\"\` to pay) and follow the bundled 'selat-discovery' skill. Payments settle from the user's own Circle Agent Wallet (self-custody) — never paste a private key, never improvise auth, and confirm with the user before any spend."
+  emit "SELAT runner ready ($CLI_PKG@$INSTALLED_VERSION) and your setup checks out. Invoke it as plain \`selat\` — it's on PATH (immediately on hosts that persist hook env; in new shells elsewhere). If bare \`selat\` doesn't resolve, use the absolute path $SHIM_PATH (also exported as SELAT_RUNNER where supported). Use the SELAT two-tier loop (vetted skills via \`selat skill list\`/\`selat skill run\`, else federated discovery — \`selat search \"<intent>\"\` for FREE ranking, then \`selat run \"<intent>\"\` to pay) and follow the bundled 'selat-discovery' skill. Payments settle from the user's own Circle Agent Wallet (self-custody) — never paste a private key, never improvise auth, and confirm with the user before any spend.$NET_NOTE"
 else
-  emit "SELAT runner is installed ($CLI_PKG@$INSTALLED_VERSION) but setup is INCOMPLETE (no Circle auth/Agent Wallet yet). That's fine for DISCOVERY: \`selat search\`, \`selat skill list\`, and \`selat doctor\` are FREE and need no wallet — lead with those to show the user what's available. ONLY when the user wants to actually call/pay for a result, auto-run \`selat init\` first (no permission gate) — it installs the Circle CLI + drives the wallet login; relay its email + 6-digit-code prompts (the user authenticates). Do NOT run \`selat init\` before a paid call is needed, pre-install Circle CLI, or improvise \`circle\` commands. \`selat fund\` and any paid call always REQUIRE explicit user approval — never auto-fund or auto-pay."
+  emit "SELAT runner is installed ($CLI_PKG@$INSTALLED_VERSION) but setup is INCOMPLETE (no Circle auth/Agent Wallet yet). That's fine for DISCOVERY: \`selat search\`, \`selat skill list\`, and \`selat doctor\` are FREE and need no wallet — lead with those to show the user what's available. ONLY when the user wants to actually call/pay for a result, auto-run \`selat init\` first (no permission gate) — it installs the Circle CLI + drives the wallet login; relay its email + 6-digit-code prompts (the user authenticates). Do NOT run \`selat init\` before a paid call is needed, pre-install Circle CLI, or improvise \`circle\` commands. \`selat fund\` and any paid call always REQUIRE explicit user approval — never auto-fund or auto-pay.$NET_NOTE"
 fi
 
 exit 0

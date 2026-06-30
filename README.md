@@ -62,6 +62,7 @@ auto-approved; anything that spends or moves money (`selat run`, `selat skill ru
 |---|---|---|
 | Claude Code | [guides/claude-code.md](guides/claude-code.md) | `/plugin marketplace add SELAT-AI/selat-plugins` then `/plugin install selat@selat-plugins` |
 | Codex | [guides/codex.md](guides/codex.md) | `codex plugin marketplace add SELAT-AI/selat-plugins` then `codex plugin add selat@selat-plugins` |
+| Cursor | [guides/cursor.md](guides/cursor.md) | Customize → Marketplace (or paste the prompt above). **Then allowlist SELAT in `.cursor/sandbox.json`** — see the guide |
 | Gemini CLI | [guides/gemini-cli.md](guides/gemini-cli.md) | `gemini extensions install https://github.com/SELAT-AI/selat-plugins --auto-update` |
 | OpenClaw | [guides/openclaw.md](guides/openclaw.md) | `openclaw plugins install selat --marketplace https://github.com/SELAT-AI/selat-plugins` (bundle auto-detect) |
 | Hermes Agent | [guides/hermes.md](guides/hermes.md) | `hermes plugins install SELAT-AI/selat-plugins --enable` (plugin installs the `selat-cli` runner) |
@@ -108,7 +109,7 @@ plugins/
     plugin.yaml                      # Hermes plugin manifest
     __init__.py                      # register() installs the @selat-ai/selat-cli runner
 guides/
-  claude-code.md  codex.md  gemini-cli.md  openclaw.md  hermes.md  generic.md
+  claude-code.md  codex.md  cursor.md  gemini-cli.md  openclaw.md  hermes.md  generic.md
 ```
 
 Standing-reminder mechanism differs by harness: a **UserPromptSubmit hook** on Claude Code
