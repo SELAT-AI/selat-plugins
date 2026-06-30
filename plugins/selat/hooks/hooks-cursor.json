@@ -3,20 +3,14 @@
   "hooks": {
     "sessionStart": [
       {
-        "command": "\"${CURSOR_PLUGIN_ROOT}/hooks-handlers/run-hook.cmd\" ensure-runner.sh",
+        "command": "./hooks-handlers/run-hook.cmd ensure-runner.sh",
         "timeout": 120
       }
     ],
-    "beforeSubmitPrompt": [
+    "beforeShellExecution": [
       {
-        "command": "\"${CURSOR_PLUGIN_ROOT}/hooks-handlers/run-hook.cmd\" selat-context.sh",
-        "timeout": 5
-      }
-    ],
-    "preToolUse": [
-      {
-        "matcher": "Bash",
-        "command": "\"${CURSOR_PLUGIN_ROOT}/hooks-handlers/run-hook.cmd\" auto-approve-selat.sh",
+        "command": "./hooks-handlers/run-hook.cmd auto-approve-selat-cursor.sh",
+        "matcher": "selat",
         "timeout": 5
       }
     ]

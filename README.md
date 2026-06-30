@@ -83,17 +83,21 @@ plugins/
   selat/
     .claude-plugin/plugin.json       # Claude Code manifest
     .codex-plugin/plugin.json        # Codex manifest
-    .cursor-plugin/plugin.json       # Cursor manifest
+    .cursor-plugin/plugin.json       # Cursor manifest (skills + rules + hooks)
     package.json                     # Antigravity manifest
-    AGENTS.md                        # standing context for Codex/Cursor/OpenClaw/Antigravity
+    AGENTS.md                        # standing context for Codex/OpenClaw/Antigravity
                                      #   (OpenClaw consumes the bundle layout + AGENTS.md; no native manifest)
+    rules/
+      selat.mdc                      # Cursor standing reminder (alwaysApply rule — Cursor's
+                                     #   beforeSubmitPrompt can't inject context, so the nudge lives here)
     hooks/
       hooks.json                     # Claude Code: SessionStart, UserPromptSubmit, PreToolUse(Bash)
-      hooks-cursor.json              # Cursor: sessionStart, beforeSubmitPrompt, preToolUse
+      hooks-cursor.json              # Cursor: sessionStart, beforeShellExecution(matcher: selat)
     hooks-handlers/                  # scripts (Anthropic convention: wiring in hooks/, scripts here)
       ensure-runner.sh               # DETECT + GUIDE (never auto-creates a wallet)
-      selat-context.sh               # UserPromptSubmit availability reminder (cat <<'EOF' heredoc)
-      auto-approve-selat.sh          # auto-approve READ-ONLY selat only
+      selat-context.sh               # Claude UserPromptSubmit availability reminder (cat <<'EOF' heredoc)
+      auto-approve-selat.sh          # Claude PreToolUse: auto-approve READ-ONLY selat only
+      auto-approve-selat-cursor.sh   # Cursor beforeShellExecution: same policy, Cursor permission schema
       run-hook.cmd                   # polyglot Windows/Unix wrapper (cross-OS hook support)
     skills/
       selat-discovery/SKILL.md       # driver skill (the two-tier loop)
@@ -107,10 +111,12 @@ guides/
   claude-code.md  codex.md  gemini-cli.md  openclaw.md  hermes.md  generic.md
 ```
 
-Standing-reminder mechanism differs by harness: **hooks** on Claude Code (and Cursor);
-a **context file** (`GEMINI.md` / `AGENTS.md`) on Gemini / Codex / OpenClaw / Antigravity,
-which have no per-prompt context hook. Runner provisioning on Claude Code is the
-SessionStart hook. Discovery is free everywhere (no wallet); the agent auto-runs
+Standing-reminder mechanism differs by harness: a **UserPromptSubmit hook** on Claude Code
+(it can inject per-prompt context); an **alwaysApply rule** (`rules/selat.mdc`) on Cursor
+(its `beforeSubmitPrompt` hook is block-only and can't inject context, so the nudge lives in
+a rule); a **context file** (`GEMINI.md` / `AGENTS.md`) on Gemini / Codex / OpenClaw /
+Antigravity, which have no per-prompt context hook. Runner provisioning is a `sessionStart`
+hook on both Claude Code and Cursor. Discovery is free everywhere (no wallet); the agent auto-runs
 `selat init` only when a paid call is needed — it installs the Circle CLI + drives the wallet login (the user enters the OTP), and funding stays manual.
 
 > **No MCP connector.** SELAT has no MCP server today, so there is no `.mcp.json` and no
