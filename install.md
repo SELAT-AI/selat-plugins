@@ -47,7 +47,33 @@ OpenClaw auto-detects the bundle layout (`.claude-plugin/` + skill + `AGENTS.md`
 manifest. _(Not yet tested on a live OpenClaw — `openclaw plugins install ./plugins/selat` works
 for a local check.)_
 
-### Any other harness / no plugin system  (also covers Cursor, Antigravity)
+### Cursor
+Install from the **Customize** panel (sidebar → Customize → Marketplace, or search by keyword);
+Cursor has no `cursor plugin add` CLI. Community plugins also live at cursor.directory. Full
+guide: [guides/cursor.md](guides/cursor.md).
+
+**Required extra step — allow SELAT through Cursor's agent sandbox.** As of Cursor 2.5, agent
+shell commands run in a sandbox that **denies outbound network by default**, so `selat search`
+fails with `Fatal: fetch failed` until you allowlist SELAT's hosts. Create
+`.cursor/sandbox.json` in the workspace (or `~/.cursor/sandbox.json` for all projects):
+```json
+{
+  "networkPolicy": {
+    "default": "deny",
+    "allow": ["api.circle.com", "*.selat.ai", "registry.npmjs.org", "*.npmjs.org"]
+  }
+}
+```
+`api.circle.com` + `*.selat.ai` are the catalog hosts discovery needs; `*.npmjs.org` lets the
+session-start provisioner install the runner in-sandbox. Paying (`selat run`) also reaches Circle
+Gateway + chain RPCs — extend `allow` then, or set `"default": "allow"` to skip the allowlist.
+
+> Agents: this `sandbox.json` is the user's own security config — **offer to create it and let the
+> user approve**; do not silently write it. The session-start hook already prints this exact fix
+> when it detects the block. Or the user can run any `selat` command in a normal terminal outside
+> the sandbox.
+
+### Any other harness / no plugin system  (also covers Antigravity)
 ```bash
 npm i -g @selat-ai/selat-cli
 ```
