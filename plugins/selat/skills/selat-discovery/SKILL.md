@@ -112,6 +112,33 @@ or call the underlying `selat-pay <METHOD> <url> --chain <key> --max-amount <usd
 directly. The discovery/ranking half is read-only; the pay half spends from the user's
 wallet — treat the whole command as a spend and confirm first.
 
+### Apify Actors — prepaid token, buy once then reuse the Bearer
+
+Apify Actors in the catalog use a **prepaid API token**, not per-call x402. Always run
+them with `selat run` and pass the Actor input via `--input '<json>'` (or `--input-file
+<path>`) — never hand-run the raw `selat-pay` hint against an Actor URL, and never probe
+the Actor's own 402 to "get a quote":
+
+```
+selat run "scrape an instagram profile" \
+  --input '{"directUrls":["https://www.instagram.com/nasa/"],"resultsLimit":1}'
+```
+
+`selat run` buys **one** token (~$1.05 — Apify's $1 minimum plus rail cost) through the
+Router *only if you don't already hold a valid one*, then calls the Actor with an
+`Authorization: Bearer <token>` header.
+
+**The token is bought once and reused.** After the first purchase, every subsequent Actor
+call is served by that Bearer token and draws down its ~$1 prepaid balance — there is **no
+new payment, no re-probe, and no re-quote** until the balance is exhausted or the token
+expires (14 days). So:
+
+- Confirm the spend with the user on the **first** purchase only. Later calls within the
+  same token's life are already paid for — just run them; don't re-ask to spend $1.05.
+- After a purchase, **make the next call with the token, do not probe again.** Seeing a
+  fresh "$1.05 quote" for a second call means you're wrongly re-buying — stop and reuse.
+- Check the remaining prepaid balance any time with `selat spend`.
+
 ## Guardrails (always)
 
 - **Self-custody:** never paste, request, or improvise a private key; never create a
