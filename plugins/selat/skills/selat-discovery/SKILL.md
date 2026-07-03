@@ -21,7 +21,7 @@ description: >-
 > source of truth for exact subcommand flags, output shapes, and any commands added
 > after the pinned CLI version. Where they conflict, the published skill wins. The
 > command surface below was verified against @selat-ai/selat-cli@0.9.2 and
-> @selat-ai/selat-discovery@0.8.2.
+> @selat-ai/selat-discovery@0.9.0.
 
 SELAT is a capability layer for AI agents. It does two things Zero-style flat indexes
 don't: it checks **vetted skills first**, and it pays from the **user's own wallet** —
