@@ -158,6 +158,9 @@ curl -s -X POST -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/
 # Poll a run, then fetch its dataset — same token, no new payment
 curl -s -H "Authorization: Bearer $TOKEN" "https://api.apify.com/v2/actor-runs/<runId>"
 curl -s -H "Authorization: Bearer $TOKEN" "https://api.apify.com/v2/datasets/<datasetId>/items"
+
+# Check the token's remaining prepaid balance (what `selat spend` wraps)
+curl -s -H "Authorization: Bearer $TOKEN" "https://agi.apify.com/prepaid-tokens/balance"
 ```
 
 Only **pay-per-event** Actors are supported; **rental and pay-per-usage Actors are not**.
