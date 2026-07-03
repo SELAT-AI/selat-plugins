@@ -201,7 +201,16 @@ mkdir -p "$SH_HOME" "$BIN_DIR" "$CLI_DIR" "$NPM_CACHE"
 # --- install / refresh the CLI (throttled) ---
 VERSION="$(resolve_cli_version)"
 INSTALLED="$(cat "$INSTALLED_VERSION_FILE" 2>/dev/null || true)"
-if [ ! -f "$CLI_ENTRY" ] || [ "$INSTALLED" != "$VERSION" ]; then
+if [ ! -f "$CLI_ENTRY" ] || [ "$INSTALLED" != "$VERSION" ] \
+   || ! grep -q '"overrides"' "$CLI_DIR/package.json" 2>/dev/null; then
+  # Seed the runtime root manifest with selat-cli's dependency overrides. npm only
+  # honors "overrides" declared at the ROOT project — selat-cli's own overrides
+  # block is silently ignored when it's installed as a dependency, leaving e.g. a
+  # vulnerable transitive ws (GHSA-96hv-2xvq-fx4p) in the runtime tree. Mirror the
+  # pins here (keep in sync with selat-cli's package.json "overrides"); the install
+  # below re-adds the "dependencies" entry to this manifest. The grep in the
+  # condition above refreshes existing runtimes that predate the override once.
+  printf '{\n  "overrides": { "ws": "8.21.0" }\n}\n' >"$CLI_DIR/package.json"
   if [ -n "$NPM_BIN" ] && HOME="$SH_HOME" npm_config_cache="$NPM_CACHE" PATH="$NODE_BIN_DIR:$PATH" "$NPM_BIN" install \
         --prefix "$CLI_DIR" "$CLI_PKG@$VERSION" \
         --no-audit --no-fund --loglevel=error >&2 2>&1; then
