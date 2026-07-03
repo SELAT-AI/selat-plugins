@@ -20,8 +20,8 @@ description: >-
 > @selat-ai/selat-discovery SKILL.md (bundled inside @selat-ai/selat-cli) remains the
 > source of truth for exact subcommand flags, output shapes, and any commands added
 > after the pinned CLI version. Where they conflict, the published skill wins. The
-> command surface below was verified against @selat-ai/selat-cli@0.8.2 and
-> @selat-ai/selat-discovery@0.8.2.
+> command surface below was verified against @selat-ai/selat-cli@0.9.2 and
+> @selat-ai/selat-discovery@0.9.0.
 
 SELAT is a capability layer for AI agents. It does two things Zero-style flat indexes
 don't: it checks **vetted skills first**, and it pays from the **user's own wallet** —
@@ -112,6 +112,33 @@ or call the underlying `selat-pay <METHOD> <url> --chain <key> --max-amount <usd
 directly. The discovery/ranking half is read-only; the pay half spends from the user's
 wallet — treat the whole command as a spend and confirm first.
 
+### Apify Actors — prepaid token, buy once then reuse the Bearer
+
+Apify Actors in the catalog use a **prepaid API token**, not per-call x402. Always run
+them with `selat run` and pass the Actor input via `--input '<json>'` (or `--input-file
+<path>`) — never hand-run the raw `selat-pay` hint against an Actor URL, and never probe
+the Actor's own 402 to "get a quote":
+
+```
+selat run "scrape an instagram profile" \
+  --input '{"directUrls":["https://www.instagram.com/nasa/"],"resultsLimit":1}'
+```
+
+`selat run` buys **one** token (~$1.05 — Apify's $1 minimum plus rail cost) through the
+Router *only if you don't already hold a valid one*, then calls the Actor with an
+`Authorization: Bearer <token>` header.
+
+**The token is bought once and reused.** After the first purchase, every subsequent Actor
+call is served by that Bearer token and draws down its ~$1 prepaid balance — there is **no
+new payment, no re-probe, and no re-quote** until the balance is exhausted or the token
+expires (14 days). So:
+
+- Confirm the spend with the user on the **first** purchase only. Later calls within the
+  same token's life are already paid for — just run them; don't re-ask to spend $1.05.
+- After a purchase, **make the next call with the token, do not probe again.** Seeing a
+  fresh "$1.05 quote" for a second call means you're wrongly re-buying — stop and reuse.
+- Check the remaining prepaid balance any time with `selat spend`.
+
 ## Guardrails (always)
 
 - **Self-custody:** never paste, request, or improvise a private key; never create a
@@ -122,7 +149,7 @@ wallet — treat the whole command as a spend and confirm first.
 - **Degrade honestly:** if the runner or setup is unavailable, say so; don't fabricate
   results or substitute an unvetted external API.
 
-## Command quick reference (selat-cli v0.8.2)
+## Command quick reference (selat-cli v0.9.2)
 
 | Command | What it does | Money? |
 |---|---|---|
@@ -135,15 +162,18 @@ wallet — treat the whole command as a spend and confirm first.
 | `selat fund` | Top up Circle Gateway balance | **yes** |
 | `selat setup-policy` | Set Circle spending limits | no spend, changes policy (user runs it) |
 | `selat history` | Show locally recorded Gateway micropayments | no |
+| `selat spend` | Unified spend report: settled spend + Apify token utilization (read-only) | no |
 
-> Flag surface verified against @selat-ai/selat-cli@0.8.2 (`lib/commands/run.mjs`,
-> `lib/commands/skill.mjs`) and @selat-ai/selat-discovery@0.8.2:
+> Flag surface verified against @selat-ai/selat-cli@0.9.2 (`lib/commands/run.mjs`,
+> `lib/commands/skill.mjs`) and @selat-ai/selat-discovery@0.9.0:
 > • `selat search "<intent>"` (`lib/commands/search.mjs`) is FREE discovery — the same
 >   ranker as `selat run` in its no-`--pick` mode, so it never settles. Flags: `--top N`
 >   (default 5), `--json` (for agents/hooks), `--explain` (why each match is/isn't
 >   payable), `--refresh`.
-> • `selat run "<intent>"` accepts **only** the intent — no `--max-amount`; the cap is
+> • `selat run "<intent>"` accepts the intent — no `--max-amount`; the cap is
 >   auto-applied by `rank.mjs --pick` (~50% over catalog price, uncapped hints rejected).
+>   For an **Apify** pick (prepaid-token model) it also accepts `--input '<json>'` /
+>   `--input-file <path>` to carry the Actor input.
 > • `selat skill run <name>` accepts the skill's params as `--flags` plus three reserved
 >   overrides: `--max-amount <usd>`, `--chain <key>`, `--raw-key`.
 > • `--max-amount` is also the mandatory cost cap on the underlying `selat-pay` engine.
