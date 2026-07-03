@@ -201,18 +201,31 @@ mkdir -p "$SH_HOME" "$BIN_DIR" "$CLI_DIR" "$NPM_CACHE"
 # --- install / refresh the CLI (throttled) ---
 VERSION="$(resolve_cli_version)"
 INSTALLED="$(cat "$INSTALLED_VERSION_FILE" 2>/dev/null || true)"
-if [ ! -f "$CLI_ENTRY" ] || [ "$INSTALLED" != "$VERSION" ] \
+# Mirror of selat-cli's package.json "overrides" (keep in sync). npm only honors
+# overrides declared at the ROOT project — selat-cli's own overrides block is
+# silently ignored when it's installed as a dependency, leaving e.g. a vulnerable
+# transitive ws (GHSA-96hv-2xvq-fx4p) in the runtime tree.
+WS_OVERRIDE="8.21.0"
+# An installed ws that predates the pin marks a stale tree. Detect it directly:
+# a leftover package-lock keeps `npm install <pkg>` from reconciling overrides on
+# an already-locked tree, so seeding the manifest alone never heals an existing
+# runtime — the manifest can carry the override while node_modules stays stale.
+WS_PKG="$CLI_DIR/node_modules/ws/package.json"
+STALE_WS=""
+if [ -f "$WS_PKG" ] && ! grep -q "\"version\": \"$WS_OVERRIDE\"" "$WS_PKG"; then STALE_WS=1; fi
+if [ ! -f "$CLI_ENTRY" ] || [ "$INSTALLED" != "$VERSION" ] || [ -n "$STALE_WS" ] \
    || ! grep -q '"overrides"' "$CLI_DIR/package.json" 2>/dev/null; then
-  # Seed the runtime root manifest with selat-cli's dependency overrides. npm only
-  # honors "overrides" declared at the ROOT project — selat-cli's own overrides
-  # block is silently ignored when it's installed as a dependency, leaving e.g. a
-  # vulnerable transitive ws (GHSA-96hv-2xvq-fx4p) in the runtime tree. Mirror the
-  # pins here (keep in sync with selat-cli's package.json "overrides"); the install
-  # below re-adds the "dependencies" entry to this manifest. The grep in the
-  # condition above refreshes existing runtimes that predate the override once.
-  printf '{\n  "overrides": { "ws": "8.21.0" }\n}\n' >"$CLI_DIR/package.json"
+  # Seed the runtime root manifest (dependency + override) and drop any stale
+  # lockfile, then run a BARE `npm install`: a manifest-driven install re-resolves
+  # the whole tree with the override applied. The `npm install <pkg>@<ver>` "add"
+  # form must NOT be used here — it keeps already-installed transitive deps as-is
+  # and does not reconcile overrides, so a stale ws would survive it (as would a
+  # leftover package-lock, which pins the old resolution even on a bare install).
+  printf '{\n  "dependencies": { "%s": "%s" },\n  "overrides": { "ws": "%s" }\n}\n' \
+    "$CLI_PKG" "$VERSION" "$WS_OVERRIDE" >"$CLI_DIR/package.json"
+  rm -f "$CLI_DIR/package-lock.json"
   if [ -n "$NPM_BIN" ] && HOME="$SH_HOME" npm_config_cache="$NPM_CACHE" PATH="$NODE_BIN_DIR:$PATH" "$NPM_BIN" install \
-        --prefix "$CLI_DIR" "$CLI_PKG@$VERSION" \
+        --prefix "$CLI_DIR" \
         --no-audit --no-fund --loglevel=error >&2 2>&1; then
     printf '%s' "$VERSION" >"$INSTALLED_VERSION_FILE"
     log "installed $CLI_PKG@$VERSION into $CLI_DIR"
