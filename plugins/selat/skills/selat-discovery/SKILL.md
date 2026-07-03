@@ -112,12 +112,21 @@ or call the underlying `selat-pay <METHOD> <url> --chain <key> --max-amount <usd
 directly. The discovery/ranking half is read-only; the pay half spends from the user's
 wallet — treat the whole command as a spend and confirm first.
 
-### Apify Actors — prepaid token, buy once then reuse the Bearer
+### Apify Actors — prepaid token (recognize → buy once → reuse the Bearer)
 
-Apify Actors in the catalog use a **prepaid API token**, not per-call x402. Always run
-them with `selat run` and pass the Actor input via `--input '<json>'` (or `--input-file
-<path>`) — never hand-run the raw `selat-pay` hint against an Actor URL, and never probe
-the Actor's own 402 to "get a quote":
+Apify Actors in the catalog use a **prepaid API token**, not per-call x402.
+
+**Recognize an Apify Actor** by any of: a URL on host `api.apify.com` with a
+`/v2/acts/<owner>~<actor>/…` (or `/v2/actors/…`) run path; a catalog pick whose payment
+scheme is `prepaid-token` or whose service id starts with `apify:`; or a probe returning a
+402 from one of those URLs.
+
+**First contact — an Apify Actor's 402 means BUY A TOKEN, not pay it.** Probing an Apify
+Actor without a token returns an x402 challenge. That 402 is the Actor's own per-call price;
+in the prepaid-token model you do **not** sign or pay it (you can't settle it from a Gateway
+balance anyway). Buy **one** token, then call the Actor with it. Never treat the Actor 402
+as a payable quote, never hand-run the raw `selat-pay` hint against an Actor URL, and never
+re-probe the Actor's 402. Always drive Apify Actors with `selat run` + the Actor input:
 
 ```
 selat run "scrape an instagram profile" \
@@ -131,7 +140,31 @@ Router *only if you don't already hold a valid one*, then calls the Actor with a
 **The token is bought once and reused.** After the first purchase, every subsequent Actor
 call is served by that Bearer token and draws down its ~$1 prepaid balance — there is **no
 new payment, no re-probe, and no re-quote** until the balance is exhausted or the token
-expires (14 days). So:
+expires (14 days).
+
+**One token, many calls.** The prepaid token is a normal Apify API key — reuse it as
+`Authorization: Bearer <token>` across every Apify endpoint. Store discovery needs no token;
+the run, run-status, and dataset endpoints all draw the **same** prepaid balance:
+
+```bash
+# Discover Actors (free — no token)
+curl -s "https://api.apify.com/v2/store?search=instagram&limit=5"
+
+# Run an Actor and get its dataset items in one call (Bearer)
+curl -s -X POST -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
+  -d '{"username":["natgeo"],"resultsLimit":3}' \
+  "https://api.apify.com/v2/actors/apify~instagram-post-scraper/run-sync-get-dataset-items"
+
+# Poll a run, then fetch its dataset — same token, no new payment
+curl -s -H "Authorization: Bearer $TOKEN" "https://api.apify.com/v2/actor-runs/<runId>"
+curl -s -H "Authorization: Bearer $TOKEN" "https://api.apify.com/v2/datasets/<datasetId>/items"
+
+# Check the token's remaining prepaid balance (what `selat spend` wraps)
+curl -s -H "Authorization: Bearer $TOKEN" "https://agi.apify.com/prepaid-tokens/balance"
+```
+
+Only **pay-per-event** Actors are supported; **rental and pay-per-usage Actors are not**.
+Actor input is per-Actor (e.g. `{"username":["natgeo"],"resultsLimit":3}`) — read its schema. So:
 
 - Confirm the spend with the user on the **first** purchase only. Later calls within the
   same token's life are already paid for — just run them; don't re-ask to spend $1.05.
