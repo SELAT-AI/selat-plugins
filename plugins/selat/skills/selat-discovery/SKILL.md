@@ -112,12 +112,21 @@ or call the underlying `selat-pay <METHOD> <url> --chain <key> --max-amount <usd
 directly. The discovery/ranking half is read-only; the pay half spends from the user's
 wallet — treat the whole command as a spend and confirm first.
 
-### Apify Actors — prepaid token, buy once then reuse the Bearer
+### Apify Actors — prepaid token (recognize → buy once → reuse the Bearer)
 
-Apify Actors in the catalog use a **prepaid API token**, not per-call x402. Always run
-them with `selat run` and pass the Actor input via `--input '<json>'` (or `--input-file
-<path>`) — never hand-run the raw `selat-pay` hint against an Actor URL, and never probe
-the Actor's own 402 to "get a quote":
+Apify Actors in the catalog use a **prepaid API token**, not per-call x402.
+
+**Recognize an Apify Actor** by any of: a URL on host `api.apify.com` with a
+`/v2/acts/<owner>~<actor>/…` (or `/v2/actors/…`) run path; a catalog pick whose payment
+scheme is `prepaid-token` or whose service id starts with `apify:`; or a probe returning a
+402 from one of those URLs.
+
+**First contact — an Apify Actor's 402 means BUY A TOKEN, not pay it.** Probing an Apify
+Actor without a token returns an x402 challenge. That 402 is the Actor's own per-call price;
+in the prepaid-token model you do **not** sign or pay it (you can't settle it from a Gateway
+balance anyway). Buy **one** token, then call the Actor with it. Never treat the Actor 402
+as a payable quote, never hand-run the raw `selat-pay` hint against an Actor URL, and never
+re-probe the Actor's 402. Always drive Apify Actors with `selat run` + the Actor input:
 
 ```
 selat run "scrape an instagram profile" \
