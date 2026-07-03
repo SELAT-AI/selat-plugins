@@ -140,7 +140,28 @@ Router *only if you don't already hold a valid one*, then calls the Actor with a
 **The token is bought once and reused.** After the first purchase, every subsequent Actor
 call is served by that Bearer token and draws down its ~$1 prepaid balance — there is **no
 new payment, no re-probe, and no re-quote** until the balance is exhausted or the token
-expires (14 days). So:
+expires (14 days).
+
+**One token, many calls.** The prepaid token is a normal Apify API key — reuse it as
+`Authorization: Bearer <token>` across every Apify endpoint. Store discovery needs no token;
+the run, run-status, and dataset endpoints all draw the **same** prepaid balance:
+
+```bash
+# Discover Actors (free — no token)
+curl -s "https://api.apify.com/v2/store?search=instagram&limit=5"
+
+# Run an Actor and get its dataset items in one call (Bearer)
+curl -s -X POST -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
+  -d '{"username":["natgeo"],"resultsLimit":3}' \
+  "https://api.apify.com/v2/actors/apify~instagram-post-scraper/run-sync-get-dataset-items"
+
+# Poll a run, then fetch its dataset — same token, no new payment
+curl -s -H "Authorization: Bearer $TOKEN" "https://api.apify.com/v2/actor-runs/<runId>"
+curl -s -H "Authorization: Bearer $TOKEN" "https://api.apify.com/v2/datasets/<datasetId>/items"
+```
+
+Only **pay-per-event** Actors are supported; **rental and pay-per-usage Actors are not**.
+Actor input is per-Actor (e.g. `{"username":["natgeo"],"resultsLimit":3}`) — read its schema. So:
 
 - Confirm the spend with the user on the **first** purchase only. Later calls within the
   same token's life are already paid for — just run them; don't re-ask to spend $1.05.
