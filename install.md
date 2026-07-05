@@ -30,22 +30,18 @@ claude plugin install selat@selat-plugins
 codex plugin marketplace add SELAT-AI/selat-plugins
 codex plugin add selat@selat-plugins
 ```
-_(Exact Codex plugin command names not yet tested on a live Codex — if they differ, fall back to
-the npm install below.)_
 
 ### Gemini CLI
 ```bash
 gemini extensions install https://github.com/SELAT-AI/selat-plugins --auto-update
 ```
-_(Exact Gemini extension path not yet tested live — fall back to the npm install if it fails.)_
 
 ### OpenClaw
 ```bash
 openclaw plugins install selat --marketplace https://github.com/SELAT-AI/selat-plugins
 ```
 OpenClaw auto-detects the bundle layout (`.claude-plugin/` + skill + `AGENTS.md`); no native
-manifest. _(Not yet tested on a live OpenClaw — `openclaw plugins install ./plugins/selat` works
-for a local check.)_
+manifest.
 
 ### Cursor
 Install from the **Customize** panel (sidebar → Customize → Marketplace, or search by keyword);
