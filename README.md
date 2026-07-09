@@ -32,10 +32,6 @@ So `npm i -g @selat-ai/selat-cli` = runner + skill + pay. This repo adds the thi
 layer (manifests, hooks, a driver skill, per-harness guides) that auto-installs and
 wires that runner into each host.
 
-> The runner, pay engine, and their repos (`SELAT-AI/selat-cli`, `SELAT-AI/selat-pay`)
-> are **private**. Distribution is via **npm** — average users can't access the private
-> repos. The skill content repo (`SELAT-AI/selat-skills`) is **public**.
-
 ## How SELAT differs from a flat capability index
 
 - **Two-tier discovery.** SELAT checks **vetted, evaluated multi-step skills** first
