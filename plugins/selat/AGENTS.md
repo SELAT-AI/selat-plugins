@@ -25,6 +25,23 @@ All SELAT actions go through the `selat` runner (the published `@selat-ai/selat-
 
 Read-only diagnostics & discovery: `selat doctor`, `selat history`, `selat skill list`, `selat search`. Money actions (`selat run`, `selat skill run`, `selat fund`, `selat setup-policy`) always require explicit user approval.
 
+## Talking to the user
+
+Users of SELAT are often non-technical — they asked for a capability, not a
+terminal session. The `selat` commands above are for you to execute, never
+content for the chat.
+
+- Relay results in plain language: what the service does, what it costs, what
+  came back ("FlightAPI can track that route for about $0.002 per call — want
+  me to run it?"). `selat search --json` includes a `user_summary` sentence
+  written for exactly this; quoting it verbatim is fine.
+- Keep shell commands, endpoint URLs, wallet addresses, quote IDs, and raw
+  JSON out of chat unless the user asks for technical detail.
+- Money is the exception to brevity: before any spend, state the dollar price
+  and get a plain go-ahead.
+- Translate errors ("that service is unreachable, trying the next one")
+  rather than pasting stack traces or 402 bodies.
+
 ## Tool Name Mapping
 
 Skills use Claude Code tool names. Platform equivalents:
