@@ -351,8 +351,28 @@ if command -v curl >/dev/null 2>&1; then
   esac
 fi
 
+# --- surface the wallet's spending-cap state (`selat budget`, cli >= 0.12) ---
+# The Circle spending policy is the hard ceiling a runaway agent cannot bypass;
+# survey feedback shows users never discover `selat setup-policy` on their own,
+# so the ready-path context reports cap state up front instead of vouching for an
+# uncapped wallet. Best-effort and silent on any failure (older CLIs have no
+# `budget` command; the read needs the network). jq-free: we only need one
+# boolean, so a fixed-string match on the --json output suffices.
+POLICY_NOTE=""
 if [ "$DOCTOR_OK" = "1" ]; then
-  emit "SELAT runner ready ($CLI_PKG@$INSTALLED_VERSION) and your setup checks out. Invoke it as plain \`selat\` — it's on PATH (immediately on hosts that persist hook env; in new shells elsewhere). If bare \`selat\` doesn't resolve, use the absolute path $SHIM_PATH (also exported as SELAT_RUNNER where supported). Use the SELAT two-tier loop (vetted skills via \`selat skill list\`/\`selat skill run\`, else federated discovery — \`selat search \"<intent>\"\` for FREE ranking, then \`selat run \"<intent>\"\` to pay) and follow the bundled 'selat-discovery' skill. Payments settle from the user's own Circle Agent Wallet (self-custody) — never paste a private key, never improvise auth, and confirm with the user before any spend.$NET_NOTE"
+  budget_json="$("$SHIM_PATH" budget --json 2>/dev/null || true)"
+  case "$budget_json" in
+    *'"custom": false'*)
+      POLICY_NOTE=" SPENDING CAPS: this wallet has NO spending caps set — before any funding or paid call, suggest \\`selat setup-policy\\` (Circle-enforced per-tx/daily/weekly/monthly ceilings; the one cap an agent cannot bypass)."
+      ;;
+    *'"custom": true'*)
+      POLICY_NOTE=" Spending caps are set on the wallet (view them with \\`selat budget\\`)."
+      ;;
+  esac
+fi
+
+if [ "$DOCTOR_OK" = "1" ]; then
+  emit "SELAT runner ready ($CLI_PKG@$INSTALLED_VERSION) and your setup checks out. Invoke it as plain \`selat\` — it's on PATH (immediately on hosts that persist hook env; in new shells elsewhere). If bare \`selat\` doesn't resolve, use the absolute path $SHIM_PATH (also exported as SELAT_RUNNER where supported). Use the SELAT two-tier loop (vetted skills via \`selat skill list\`/\`selat skill run\`, else federated discovery — \`selat search \"<intent>\"\` for FREE ranking, then \`selat run \"<intent>\"\` to pay) and follow the bundled 'selat-discovery' skill. Payments settle from the user's own Circle Agent Wallet (self-custody) — never paste a private key, never improvise auth, and confirm with the user before any spend.$POLICY_NOTE$NET_NOTE"
 else
   emit "SELAT runner is installed ($CLI_PKG@$INSTALLED_VERSION) but setup is INCOMPLETE (no Circle auth/Agent Wallet yet). That's fine for DISCOVERY: \`selat search\`, \`selat skill list\`, and \`selat doctor\` are FREE and need no wallet — lead with those to show the user what's available. ONLY when the user wants to actually call/pay for a result, auto-run \`selat init\` first (no permission gate) — it installs the Circle CLI + drives the wallet login; relay its email + 6-digit-code prompts (the user authenticates). Do NOT run \`selat init\` before a paid call is needed, pre-install Circle CLI, or improvise \`circle\` commands. \`selat fund\` and any paid call always REQUIRE explicit user approval — never auto-fund or auto-pay.$NET_NOTE"
 fi
