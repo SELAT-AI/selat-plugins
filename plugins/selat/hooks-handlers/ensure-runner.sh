@@ -363,10 +363,10 @@ if [ "$DOCTOR_OK" = "1" ]; then
   budget_json="$("$SHIM_PATH" budget --json 2>/dev/null || true)"
   case "$budget_json" in
     *'"custom": false'*)
-      POLICY_NOTE=" SPENDING CAPS: this wallet has NO spending caps set — before any funding or paid call, suggest \\`selat setup-policy\\` (Circle-enforced per-tx/daily/weekly/monthly ceilings; the one cap an agent cannot bypass)."
+      POLICY_NOTE=" SPENDING CAPS: this wallet has NO spending caps set — before any funding or paid call, suggest running: selat setup-policy (Circle-enforced per-tx/daily/weekly/monthly ceilings; the one cap an agent cannot bypass)."
       ;;
     *'"custom": true'*)
-      POLICY_NOTE=" Spending caps are set on the wallet (view them with \\`selat budget\\`)."
+      POLICY_NOTE=" Spending caps are set on the wallet (view them with: selat budget)."
       ;;
   esac
 fi
