@@ -59,6 +59,11 @@ holds keys or balance. So:
 - Before any spend, surface the cost and get the user's go-ahead. Spending limits are
   set via `selat setup-policy` (recommended before deposits > $20); funding via
   `selat fund`. Both are user-driven money actions — never run them unprompted.
+- **After funding, verify the unified Gateway balance** — `circle gateway balance --all`,
+  or the Gateway line in `selat doctor` — **never** the wallet's on-chain address balance.
+  A deposit moves USDC from the address into Gateway, so the on-chain balance dropping
+  (even to 0) is by design, not lost money. Deposits take ~5–10 min to settle; a fresh
+  0 Gateway reading usually means "still settling" — don't tell the user funds are lost.
 
 ## The two-tier loop
 
