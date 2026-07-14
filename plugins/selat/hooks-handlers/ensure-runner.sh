@@ -251,6 +251,17 @@ chmod +x "$SHIM_PATH" 2>/dev/null || true
 
 persist_env SELAT_RUNNER "$SHIM_PATH"
 
+# --- session-budget identity (cli >= 0.13 / selat-pay >= 0.9) ---
+# A fresh SELAT_SESSION_ID per agent session gives the per-session spending
+# tripwire its boundary (env config: SELAT_SESSION_BUDGET). The budget itself
+# is OPT-IN: set SELAT_DEFAULT_SESSION_BUDGET in your own environment and
+# every agent session starts pre-armed with that cumulative USD cap —
+# selat-pay then refuses over-budget calls before anything is signed.
+persist_env SELAT_SESSION_ID "sess-$(date +%s)-$$"
+if [ -n "${SELAT_DEFAULT_SESSION_BUDGET:-}" ]; then
+  persist_env SELAT_SESSION_BUDGET "$SELAT_DEFAULT_SESSION_BUDGET"
+fi
+
 # --- put `selat` on PATH (idempotent; opt out: SELAT_PATH_AUTOADD=0) ---
 RC_PATH_ADDED=""
 if [ "${SELAT_PATH_AUTOADD:-1}" != "0" ]; then
