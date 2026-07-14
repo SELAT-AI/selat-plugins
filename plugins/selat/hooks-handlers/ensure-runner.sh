@@ -258,8 +258,13 @@ persist_env SELAT_RUNNER "$SHIM_PATH"
 # every agent session starts pre-armed with that cumulative USD cap —
 # selat-pay then refuses over-budget calls before anything is signed.
 persist_env SELAT_SESSION_ID "sess-$(date +%s)-$$"
+BUDGET_ASK=""
 if [ -n "${SELAT_DEFAULT_SESSION_BUDGET:-}" ]; then
   persist_env SELAT_SESSION_BUDGET "$SELAT_DEFAULT_SESSION_BUDGET"
+else
+  # No default configured: have the agent ASK the user (once, before the first
+  # paid call) instead of silently running uncapped or imposing a default.
+  BUDGET_ASK=" SESSION BUDGET: none armed for this session. Before the FIRST paid call, ask the user what cumulative spending cap they want for this session (suggest 2 USD) and arm it: selat budget start --amount <usd>. If they decline, say paid calls run uncapped up to the wallet policy and proceed."
 fi
 
 # --- put `selat` on PATH (idempotent; opt out: SELAT_PATH_AUTOADD=0) ---
@@ -383,7 +388,7 @@ if [ "$DOCTOR_OK" = "1" ]; then
 fi
 
 if [ "$DOCTOR_OK" = "1" ]; then
-  emit "SELAT runner ready ($CLI_PKG@$INSTALLED_VERSION) and your setup checks out. Invoke it as plain \`selat\` — it's on PATH (immediately on hosts that persist hook env; in new shells elsewhere). If bare \`selat\` doesn't resolve, use the absolute path $SHIM_PATH (also exported as SELAT_RUNNER where supported). Use the SELAT two-tier loop (vetted skills via \`selat skill list\`/\`selat skill run\`, else federated discovery — \`selat search \"<intent>\"\` for FREE ranking, then \`selat run \"<intent>\"\` to pay) and follow the bundled 'selat-discovery' skill. Payments settle from the user's own Circle Agent Wallet (self-custody) — never paste a private key, never improvise auth, and confirm with the user before any spend.$POLICY_NOTE$NET_NOTE"
+  emit "SELAT runner ready ($CLI_PKG@$INSTALLED_VERSION) and your setup checks out. Invoke it as plain \`selat\` — it's on PATH (immediately on hosts that persist hook env; in new shells elsewhere). If bare \`selat\` doesn't resolve, use the absolute path $SHIM_PATH (also exported as SELAT_RUNNER where supported). Use the SELAT two-tier loop (vetted skills via \`selat skill list\`/\`selat skill run\`, else federated discovery — \`selat search \"<intent>\"\` for FREE ranking, then \`selat run \"<intent>\"\` to pay) and follow the bundled 'selat-discovery' skill. Payments settle from the user's own Circle Agent Wallet (self-custody) — never paste a private key, never improvise auth, and confirm with the user before any spend.$POLICY_NOTE$BUDGET_ASK$NET_NOTE"
 else
   emit "SELAT runner is installed ($CLI_PKG@$INSTALLED_VERSION) but setup is INCOMPLETE (no Circle auth/Agent Wallet yet). That's fine for DISCOVERY: \`selat search\`, \`selat skill list\`, and \`selat doctor\` are FREE and need no wallet — lead with those to show the user what's available. ONLY when the user wants to actually call/pay for a result, auto-run \`selat init\` first (no permission gate) — it installs the Circle CLI + drives the wallet login; relay its email + 6-digit-code prompts (the user authenticates). Do NOT run \`selat init\` before a paid call is needed, pre-install Circle CLI, or improvise \`circle\` commands. \`selat fund\` and any paid call always REQUIRE explicit user approval — never auto-fund or auto-pay.$NET_NOTE"
 fi
