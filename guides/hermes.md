@@ -22,16 +22,39 @@ run `register(ctx)` on load (CLI + gateway), which is the natural place to ensur
 
 ## Install
 
+**Prerequisites:** Node.js ≥ 18 (ships with npm). No Python needed beyond Hermes itself.
+
 ```bash
-hermes plugins install SELAT-AI/selat-plugins --enable
+hermes plugins install SELAT-AI/selat-plugins/plugins/selat-hermes --enable
 ```
+
+The `…/plugins/selat-hermes` **subdirectory path is required.** Hermes's installer
+(`hermes_cli/plugins_cmd.py`) treats everything after `owner/repo` as the plugin's directory inside
+the clone: it clones the repo, copies **only that directory** into `~/.hermes/plugins/`, and names
+the install after `plugin.yaml`'s `name` — so the plugin lands correctly at `~/.hermes/plugins/selat/`.
+
+The bare `hermes plugins install SELAT-AI/selat-plugins` form clones the **whole marketplace repo**
+instead (there is no `plugin.yaml` at the repo root — this repo serves several harnesses), leaving
+the plugin buried at `~/.hermes/plugins/selat-plugins/plugins/selat-hermes/` where Hermes never
+loads it. If you ran the bare form: `hermes plugins remove selat-plugins`, then reinstall with the
+full path above. A GitHub browser URL works too:
+`hermes plugins install https://github.com/SELAT-AI/selat-plugins/tree/main/plugins/selat-hermes`.
+
 On load the plugin runs `npm i -g @selat-ai/selat-cli` if `selat` isn't already on PATH (first load
 only), then registers the bundled skill. Hermes plugins are **opt-in** — `--enable` (or answering the
 `Enable 'selat' now?` prompt) is required before it runs.
 
-_Not yet tested on a live Hermes:_ (a) that `hermes plugins install SELAT-AI/selat-plugins` resolves the
-plugin nested at `plugins/selat-hermes/` — if not, clone the repo and copy that directory into
-`~/.hermes/plugins/selat/`; (b) the `ctx` API names (`register_skill`, `inject_message`).
+To update later, force-reinstall (subdirectory installs carry no `.git`, so `hermes plugins update`
+can't pull them):
+
+```bash
+hermes plugins install SELAT-AI/selat-plugins/plugins/selat-hermes --force --enable
+```
+
+_Not yet tested on a live Hermes:_ the `ctx` API names (`register_skill`, `inject_message`). The
+install-path behavior above is verified against the installer source
+([`hermes_cli/plugins_cmd.py`](https://github.com/NousResearch/hermes-agent/blob/main/hermes_cli/plugins_cmd.py):
+`_resolve_git_url` / `_install_plugin_core`), not a live run.
 
 ## First-run setup (self-custody)
 

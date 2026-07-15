@@ -62,6 +62,8 @@ auto-approved; anything that spends or moves money (`selat run`, `selat skill ru
 
 ## Install per harness
 
+**Prerequisites:** Node.js ≥ 18 (ships with npm). No Python needed.
+
 | Harness | Guide | Quick install |
 |---|---|---|
 | Claude Code | [guides/claude-code.md](guides/claude-code.md) | `/plugin marketplace add SELAT-AI/selat-plugins` then `/plugin install selat@selat-plugins` |
@@ -69,7 +71,7 @@ auto-approved; anything that spends or moves money (`selat run`, `selat skill ru
 | Cursor | [guides/cursor.md](guides/cursor.md) | Customize → Marketplace (or paste the prompt above). **Then allowlist SELAT in `.cursor/sandbox.json`** — see the guide |
 | Gemini CLI | [guides/gemini-cli.md](guides/gemini-cli.md) | `gemini extensions install https://github.com/SELAT-AI/selat-plugins --auto-update` |
 | OpenClaw | [guides/openclaw.md](guides/openclaw.md) | `openclaw plugins install selat --marketplace https://github.com/SELAT-AI/selat-plugins` (bundle auto-detect) |
-| Hermes Agent | [guides/hermes.md](guides/hermes.md) | `hermes plugins install SELAT-AI/selat-plugins --enable` (plugin installs the `selat-cli` runner) |
+| Hermes Agent | [guides/hermes.md](guides/hermes.md) | `hermes plugins install SELAT-AI/selat-plugins/plugins/selat-hermes --enable` — the subdirectory path is required (the bare repo form buries the plugin at `plugins/selat-plugins/plugins/selat-hermes/`; see the guide). The plugin installs the `selat-cli` runner |
 | Any other / none | [guides/generic.md](guides/generic.md) | `npm i -g @selat-ai/selat-cli` then `selat init` |
 
 After install, every harness runs the same first-time setup (self-custody):
