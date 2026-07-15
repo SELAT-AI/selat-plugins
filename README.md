@@ -45,6 +45,14 @@ wires that runner into each host.
 
 ## Self-custody note (read this)
 
+What "MPC self-custody" means concretely: the Circle Agent Wallet uses **2-of-2 MPC
+key management** — the private key exists only as two key shares, both required to
+sign, and per [Circle's docs](https://developers.circle.com/agent-stack/agent-wallets)
+the shares are **never exposed to the agent** (or to SELAT) and **Circle cannot
+unilaterally move funds** without the user's involvement. Signing is authorized by the
+user's email-OTP session; spending-policy writes require a fresh human OTP. SELAT signs
+only through the Circle CLI — it never holds a key share, funds, or login credentials.
+
 The SessionStart hook **does not create a wallet or move money**. It installs/updates the
 runner, then runs `selat doctor` to check setup. If the wallet/config is missing, it
 tells the agent that **free discovery (`selat search`, `selat skill list`, `selat doctor`) works now with no wallet** — and to **auto-run `selat init` only when the user wants to actually call/pay** for a result (no permission gate; init then installs the Circle CLI and prompts for email + OTP).
