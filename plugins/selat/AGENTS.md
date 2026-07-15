@@ -12,6 +12,14 @@ Payments settle from the **user's own Circle Agent Wallet** (Circle MPC). SELAT 
 
 **The trust model, if the user asks (per Circle's docs):** the Agent Wallet uses **2-of-2 MPC key management** — the private key exists only as two key shares, both required to sign; the shares are never exposed to the agent (or SELAT), and **Circle cannot unilaterally move funds** without the user's involvement. Signing is authorized by the user's email-OTP session (sessions expire after 7 days — re-prompting for an OTP is normal, not a wallet expiry); spending-policy writes require a fresh human OTP, so an agent cannot raise its own caps. SELAT signs only through the Circle CLI and never holds a key share, funds, or login credentials.
 
+## Balance model (after funding)
+
+The spendable balance is the **unified Gateway balance** — verify funding with
+`circle gateway balance --all` (or the Gateway line in `selat doctor`), **never** the
+wallet's on-chain address balance. A deposit moves USDC from the address into Gateway,
+so the on-chain balance dropping (even to 0) after funding is by design, not lost money.
+Deposits take ~5–10 min to settle; a fresh 0 Gateway reading usually means "still settling".
+
 ## Skills
 
 This plugin provides the following skill. Read the SKILL.md to understand how to invoke it:
