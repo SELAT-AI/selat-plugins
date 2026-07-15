@@ -162,7 +162,7 @@ There are **two layers**, and they update on different channels:
 | Cursor | Customize → Marketplace → update `selat` (or reinstall) |
 | Gemini CLI | already auto-updates via `--auto-update` at install time |
 | **OpenClaw** | **`openclaw plugins update selat`** (or `openclaw plugins update --all`) — **OpenClaw has no auto-update; the bundle only refreshes when you run this.** |
-| Hermes | `hermes plugins install SELAT-AI/selat-plugins --enable` again to overwrite in place |
+| Hermes | `hermes plugins install SELAT-AI/selat-plugins/plugins/selat-hermes --force --enable` (subdirectory installs carry no `.git`, so `hermes plugins update` can't pull them; force-reinstall instead) |
 
 > **OpenClaw note.** Because OpenClaw never auto-updates a bundle, a fix that lives in the plugin hook
 > (e.g. a PATH or sandbox change) won't reach an existing install until you run `openclaw plugins update
