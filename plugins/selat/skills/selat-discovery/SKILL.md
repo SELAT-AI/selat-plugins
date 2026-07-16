@@ -52,18 +52,26 @@ holds keys or balance. So:
 - **Only when the user wants to actually call/pay** for a result and `selat doctor` reports the
   wallet/config is missing: auto-run `selat init` then — no permission gate. It installs the Circle
   CLI, then prompts for the user's Circle email + a 6-digit OTP (relay those — the user
-  authenticates). Don't run `selat init` before it's needed, pre-install Circle CLI, or improvise
+  authenticates; in a chat-only harness the OTP necessarily passes through the chat — keep it
+  out of logs and summaries, and never store it). Don't run `selat init` before it's needed,
+  pre-install Circle CLI, or improvise
   `circle` commands. `selat fund` and any paid call still need explicit approval — never auto-fund
   or auto-pay.
 - A `--raw-key` dev mode exists but is **not for production** — do not steer users to it.
 - Before any spend, surface the cost and get the user's go-ahead. Spending limits are
   set via `selat setup-policy` (recommended before deposits > $20); funding via
   `selat fund`. Both are user-driven money actions — never run them unprompted.
-- **After funding, verify the unified Gateway balance** — `circle gateway balance --all`,
-  or the Gateway line in `selat doctor` — **never** the wallet's on-chain address balance.
-  A deposit moves USDC from the address into Gateway, so the on-chain balance dropping
-  (even to 0) is by design, not lost money. Deposits take ~5–10 min to settle; a fresh
-  0 Gateway reading usually means "still settling" — don't tell the user funds are lost.
+- **Funding is two movements**: (1) top up the agent wallet address with USDC, then (2)
+  `selat fund` deposits it into Gateway. After funding, refer only to **"the Gateway balance"**
+  — one number, spendable on any supported chain; never enumerate per-chain balances to the user.
+  Verify it with `circle gateway balance --all`, or the Gateway line in `selat doctor` —
+  **never** the wallet's on-chain address balance. A deposit moves USDC from the address into
+  Gateway, so the on-chain balance dropping (even to 0) is by design, not lost money. Deposits
+  take ~5–10 min to settle; a fresh 0 Gateway reading usually means "still settling" — don't
+  tell the user funds are lost. If `circle wallet balance` and an on-chain read disagree, say
+  "a fresh transfer can take a minute to be readable — let's re-check" — **never** speculate
+  that Circle "holds" funds off-chain (reads just lag; that speculation manufactures a
+  custodial misconception).
 
 ## The two-tier loop
 
