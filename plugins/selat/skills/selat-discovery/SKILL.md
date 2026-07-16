@@ -71,7 +71,8 @@ holds keys or balance. So:
   tell the user funds are lost. If `circle wallet balance` and an on-chain read disagree, say
   "a fresh transfer can take a minute to be readable — let's re-check" — **never** speculate
   that Circle "holds" funds off-chain (reads just lag; that speculation manufactures a
-  custodial misconception).
+  custodial misconception). When `selat fund` prints a QR image path, send that image to the
+  user directly in chat harnesses — never just relay a file path the user can't open.
 
 ## The two-tier loop
 

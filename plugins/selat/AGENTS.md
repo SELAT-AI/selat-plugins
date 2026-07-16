@@ -26,6 +26,8 @@ Deposits take ~5–10 min to settle; a fresh 0 Gateway reading usually means "st
 If `circle wallet balance` and an on-chain read disagree, say "a fresh transfer can take a
 minute to be readable — let's re-check". **Never** speculate that Circle "holds" funds off-chain
 — reads just lag, and that speculation manufactures a custodial model that does not exist.
+When `selat fund` prints a QR image path, send that image to the user directly in chat
+harnesses — never just relay a file path the user can't open.
 
 ## Skills
 
