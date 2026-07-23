@@ -35,7 +35,7 @@ set -euo pipefail
 
 # --- Config (override via env) ---
 # Plugin-owned RUNTIME area (Node, npm cache, installed CLI, shim). This is a NEW
-# plugin-owned dir, NOT a selat-cli home — verified against selat-cli@0.14.0, selat-cli
+# plugin-owned dir, NOT a selat-cli home — verified against selat-cli@0.14.1, selat-cli
 # keeps its config at ~/.config/selat-pay/.env and skills at ~/.config/selat/skills;
 # there is no ~/.selat home. We keep the plugin runtime separate and never touch the
 # CLI's config: Circle auth + the user's Agent Wallet live in Circle's own config
@@ -44,7 +44,7 @@ set -euo pipefail
 SH_HOME="${SELAT_PLUGINS_HOME:-$HOME/.cache/selat-plugins/runtime}"
 
 # The published runner package and which version line to track. Default "latest";
-# pin by exporting SELAT_CLI_SPEC=0.14.0 (a concrete version skips the registry check).
+# pin by exporting SELAT_CLI_SPEC=0.14.1 (a concrete version skips the registry check).
 CLI_PKG="@selat-ai/selat-cli"
 CLI_SPEC="${SELAT_CLI_SPEC:-latest}"
 
@@ -331,7 +331,7 @@ INSTALLED_VERSION="$(cat "$INSTALLED_VERSION_FILE" 2>/dev/null || printf '%s' "$
 # zero exit as "configured"; any non-zero as "needs setup" and steer the agent to
 # AUTO-RUN `selat init` (the hook itself can't — init is interactive); we NEVER fund.
 #
-# Verified against @selat-ai/selat-cli@0.14.0 (lib/commands/doctor.mjs + bin/selat.mjs):
+# Verified against @selat-ai/selat-cli@0.14.1 (lib/commands/doctor.mjs + bin/selat.mjs):
 # `doctor()` counts hard failures and `return 0` only when failures === 0, else
 # `return 1`; main() pipes that to `process.exit(code ?? 0)`, so the exit code DOES
 # encode readiness — no stdout parsing needed. The setup-critical states all count as
