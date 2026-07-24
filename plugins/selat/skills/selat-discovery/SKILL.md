@@ -53,8 +53,12 @@ holds keys or balance. So:
   wallet/config is missing: auto-run `selat init` then — no permission gate. It installs the Circle
   CLI, then prompts for the user's Circle email + a 6-digit OTP (relay those — the user
   authenticates; in a chat-only harness the OTP necessarily passes through the chat — keep it
-  out of logs and summaries, and never store it). Don't run `selat init` before it's needed,
-  pre-install Circle CLI, or improvise
+  out of logs and summaries, and never store it). On a non-interactive host (no usable TTY) or an
+  account with several agent wallets, pass `selat init --email <addr> --wallet <n|address>` so it
+  doesn't block on the email/wallet prompts — `--wallet` takes a 1-based index from the list init
+  prints, a 0x address, or `new` (also settable via `SELAT_WALLET`); without it a multi-wallet
+  account stops at `Wallet to use [1-N/new]`, which a non-TTY shell can't answer. Don't run
+  `selat init` before it's needed, pre-install Circle CLI, or improvise
   `circle` commands. `selat fund` and any paid call still need explicit approval — never auto-fund
   or auto-pay.
 - A `--raw-key` dev mode exists but is **not for production** — do not steer users to it.
