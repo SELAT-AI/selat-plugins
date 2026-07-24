@@ -20,7 +20,7 @@ description: >-
 > @selat-ai/selat-discovery SKILL.md (bundled inside @selat-ai/selat-cli) remains the
 > source of truth for exact subcommand flags, output shapes, and any commands added
 > after the pinned CLI version. Where they conflict, the published skill wins. The
-> command surface below was verified against @selat-ai/selat-cli@0.14.1 and
+> command surface below was verified against @selat-ai/selat-cli@0.15.0 and
 > @selat-ai/selat-discovery@0.9.0.
 
 SELAT is a capability layer for AI agents. It does two things Zero-style flat indexes
@@ -53,8 +53,12 @@ holds keys or balance. So:
   wallet/config is missing: auto-run `selat init` then — no permission gate. It installs the Circle
   CLI, then prompts for the user's Circle email + a 6-digit OTP (relay those — the user
   authenticates; in a chat-only harness the OTP necessarily passes through the chat — keep it
-  out of logs and summaries, and never store it). Don't run `selat init` before it's needed,
-  pre-install Circle CLI, or improvise
+  out of logs and summaries, and never store it). On a non-interactive host (no usable TTY) or an
+  account with several agent wallets, pass `selat init --email <addr> --wallet <n|address>` so it
+  doesn't block on the email/wallet prompts — `--wallet` takes a 1-based index from the list init
+  prints, a 0x address, or `new` (also settable via `SELAT_WALLET`); without it a multi-wallet
+  account stops at `Wallet to use [1-N/new]`, which a non-TTY shell can't answer. Don't run
+  `selat init` before it's needed, pre-install Circle CLI, or improvise
   `circle` commands. `selat fund` and any paid call still need explicit approval — never auto-fund
   or auto-pay.
 - A `--raw-key` dev mode exists but is **not for production** — do not steer users to it.
@@ -196,7 +200,7 @@ Actor input is per-Actor (e.g. `{"username":["natgeo"],"resultsLimit":3}`) — r
 - **Degrade honestly:** if the runner or setup is unavailable, say so; don't fabricate
   results or substitute an unvetted external API.
 
-## Command quick reference (selat-cli v0.14.1)
+## Command quick reference (selat-cli v0.15.0)
 
 | Command | What it does | Money? |
 |---|---|---|
@@ -211,7 +215,7 @@ Actor input is per-Actor (e.g. `{"username":["natgeo"],"resultsLimit":3}`) — r
 | `selat history` | Show locally recorded Gateway micropayments | no |
 | `selat spend` | Unified spend report: settled spend + Apify token utilization (read-only) | no |
 
-> Flag surface verified against @selat-ai/selat-cli@0.14.1 (`lib/commands/run.mjs`,
+> Flag surface verified against @selat-ai/selat-cli@0.15.0 (`lib/commands/run.mjs`,
 > `lib/commands/skill.mjs`) and @selat-ai/selat-discovery@0.9.0:
 > • `selat search "<intent>"` (`lib/commands/search.mjs`) is FREE discovery — the same
 >   ranker as `selat run` in its no-`--pick` mode, so it never settles. Flags: `--top N`
