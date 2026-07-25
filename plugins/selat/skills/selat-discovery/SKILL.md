@@ -107,7 +107,8 @@ If a vetted skill covers the task, prefer it: it's a known-good, capped workflow
 ### Tier 2 — federated endpoint catalog (fallback)
 
 If no skill fits, fall back to the federated x402 / MPP endpoint catalog (Circle +
-Agentic Market + MPP, merged). Discover first (free), then pay:
+Agentic Market + MPP + Apify + SELAT's own first-party `catalog.selat.ai`, merged).
+Discover first (free), then pay:
 
 ```
 selat search "<intent>"      # FREE discovery — rank candidate endpoints, no wallet,
