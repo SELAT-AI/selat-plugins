@@ -201,7 +201,7 @@ Actor input is per-Actor (e.g. `{"username":["natgeo"],"resultsLimit":3}`) — r
 - **Degrade honestly:** if the runner or setup is unavailable, say so; don't fabricate
   results or substitute an unvetted external API.
 
-## Command quick reference (selat-cli v0.15.5)
+## Command quick reference (selat-cli v0.15.6)
 
 | Command | What it does | Money? |
 |---|---|---|
