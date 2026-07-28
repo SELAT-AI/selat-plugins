@@ -182,6 +182,54 @@ curl -s -H "Authorization: Bearer $TOKEN" "https://api.apify.com/v2/datasets/<da
 curl -s -H "Authorization: Bearer $TOKEN" "https://agi.apify.com/prepaid-tokens/balance"
 ```
 
+### Xquik public X Actor routes
+
+Keep every existing Apify catalog route available.
+Use free discovery to confirm these focused public X Actors:
+
+| Goal | Actor | REST selector | Actor ID |
+| --- | --- | --- | --- |
+| Posts, timelines, lists, and engagement | [X Tweet Scraper](https://apify.com/xquik/x-tweet-scraper) | `xquik~x-tweet-scraper` | `wAusCMrm284Voaw86` |
+| Followers, lists, communities, and overlap | [X Follower Scraper](https://apify.com/xquik/x-follower-scraper) | `xquik~x-follower-scraper` | `AaT0BcKU5GQh97wdt` |
+
+Discover the intended Actor and current price before every first purchase:
+
+```bash
+selat search "Xquik X Tweet Scraper for public X post search"
+selat search "Xquik X Follower Scraper for public audience research"
+```
+
+Proceed only when discovery returns the intended Xquik Actor.
+Show the discovered price and get explicit approval first.
+
+Bounded Tweet run:
+
+```bash
+selat run "use xquik/x-tweet-scraper for public X post search" \
+  --input '{"mode":"search","searchTerms":["from:apify AI"],"queryType":"Latest","outputVariant":"rich","includeSearchTerms":true,"maxItems":25}'
+```
+
+Tweet modes include `legacy`, `tweet`, `tweets`, `search`, `profileTweets`,
+`profileReplies`, `profileMedia`, `profileLikes`, `listTweets`, `article`,
+`replies`, `quotes`, `thread`, `retweeters`, and `favoriters`.
+
+Bounded Follower run:
+
+```bash
+selat run "use xquik/x-follower-scraper for public audience research" \
+  --input '{"twitterHandles":["apify"],"relation":"followers","outputMode":"compact","includeTargetMetadata":true,"maxItems":25,"maxItemsPerTarget":25}'
+```
+
+Follower relations include `followers`, `following`, `verified_followers`,
+`list_members`, `list_followers`, and `community_members`.
+
+`maxItems` caps the complete run.
+Use `maxItemsPerTarget` only with supported multi-target routes.
+Use `dedupeMode: "merge"` or `overlapMode: true` for overlap.
+Separate diagnostic rows from returned public data.
+
+Xquik is an independent third-party service. Not affiliated with X Corp. "Twitter" and "X" are trademarks of X Corp.
+
 Only **pay-per-event** Actors are supported; **rental and pay-per-usage Actors are not**.
 Actor input is per-Actor (e.g. `{"username":["natgeo"],"resultsLimit":3}`) — read its schema. So:
 
