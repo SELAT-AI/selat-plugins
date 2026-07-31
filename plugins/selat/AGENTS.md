@@ -12,7 +12,7 @@ Payments settle from the **user's own Circle Agent Wallet** (Circle MPC). SELAT 
 
 **OTP hygiene:** in a chat-only harness the 6-digit code necessarily passes through the chat — that is unavoidable and fine, but keep OTPs out of logs, summaries, and memory, and never store them.
 
-**The trust model, if the user asks (per Circle's docs):** the Agent Wallet uses **2-of-2 MPC key management** — the private key exists only as two key shares, both required to sign; the shares are never exposed to the agent (or SELAT), and **Circle cannot unilaterally move funds** without the user's involvement. Signing is authorized by the user's email-OTP session (sessions expire after 7 days — re-prompting for an OTP is normal, not a wallet expiry); spending-policy writes require a fresh human OTP, so an agent cannot raise its own caps. SELAT signs only through the Circle CLI and never holds a key share, funds, or login credentials.
+**The trust model, if the user asks (per Circle's docs):** the Agent Wallet uses **2-of-2 MPC key management** — the private key exists only as two key shares, both required to sign; the shares are never exposed to the agent (or SELAT), and **Circle cannot unilaterally move funds** without the user's involvement. Signing is authorized by the user's email-OTP session (sessions expire after a few weeks; `circle wallet status` shows the time remaining — re-prompting for an OTP is normal, not a wallet expiry); spending-policy writes require a fresh human OTP, so an agent cannot raise its own caps. SELAT signs only through the Circle CLI and never holds a key share, funds, or login credentials.
 
 ## Balance model (after funding)
 
