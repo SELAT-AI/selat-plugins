@@ -43,10 +43,17 @@ set -euo pipefail
 # SELAT_PLUGINS_HOME.
 SH_HOME="${SELAT_PLUGINS_HOME:-$HOME/.cache/selat-plugins/runtime}"
 
-# The published runner package and which version line to track. Default "latest";
-# pin by exporting SELAT_CLI_SPEC=0.15.9 (a concrete version skips the registry check).
+# The published runner package. The version to install is a PIN read from a
+# committed file (selat-cli.version) — NOT a literal in this script — so what runs
+# is exactly what was vetted and release automation bumps ONE source of truth. A
+# floating `latest` silently drifts (reviewed 0.9.6 vs. shipped 0.15.x → unreviewed
+# code live), so it is never the default. Resolution (done below, after log()):
+#   SELAT_CLI_SPEC override  >  selat-cli.version pin file  >  'latest' (last resort,
+#   only if the pin file is missing/empty — logged loudly). A concrete X.Y.Z pins and
+#   skips the registry check; SELAT_CLI_SPEC=latest opts back into floating.
 CLI_PKG="@selat-ai/selat-cli"
-CLI_SPEC="${SELAT_CLI_SPEC:-latest}"
+SELF_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" 2>/dev/null && pwd || printf '%s' ".")"
+CLI_PIN_FILE="${SELAT_CLI_PIN_FILE:-$SELF_DIR/selat-cli.version}"
 
 # Where official Node builds are fetched from, and which release line.
 NODE_DIST_BASE="${SELAT_NODE_DIST_BASE:-https://nodejs.org/dist}"
@@ -64,6 +71,29 @@ INSTALLED_VERSION_FILE="$CLI_DIR/.installed-version"
 RESOLVED_VERSION_FILE="$SH_HOME/.cli-version"
 
 log() { printf '[selat] %s\n' "$*" >&2; }
+
+# Read the pinned CLI version from the committed pin file: the first non-empty,
+# non-comment line, whitespace-trimmed. Non-zero if unreadable/empty.
+read_cli_pin() {
+  [ -r "$CLI_PIN_FILE" ] || return 1
+  local line
+  while IFS= read -r line || [ -n "$line" ]; do
+    line="${line#"${line%%[![:space:]]*}"}"        # trim leading ws
+    line="${line%"${line##*[![:space:]]}"}"         # trim trailing ws
+    case "$line" in ''|\#*) continue ;; *) printf '%s' "$line"; return 0 ;; esac
+  done < "$CLI_PIN_FILE"
+  return 1
+}
+
+# Which version to install: explicit override > committed pin file > last-resort latest.
+if [ -n "${SELAT_CLI_SPEC:-}" ]; then
+  CLI_SPEC="$SELAT_CLI_SPEC"
+elif CLI_SPEC="$(read_cli_pin)" && [ -n "$CLI_SPEC" ]; then
+  :
+else
+  CLI_SPEC="latest"
+  log "no CLI pin at $CLI_PIN_FILE — falling back to 'latest' (not reproducible; restore the pin file or set SELAT_CLI_SPEC)"
+fi
 
 # Emit the SessionStart result. $1 is the status-specific message; JSON-escaped.
 emit() {
@@ -105,6 +135,35 @@ node_major() {
   "$1" -e 'process.stdout.write(String(process.versions.node.split(".")[0]))' 2>/dev/null || true
 }
 
+# Verify a downloaded Node artifact against its entry in SHASUMS256.txt. We already
+# fetch SHASUMS256.txt to resolve the filename — this uses the SAME file's hash to
+# actually verify the bytes, closing the gap where a tampered SELAT_NODE_DIST_BASE
+# mirror could serve a malicious tarball (default base is HTTPS nodejs.org, but the
+# override is the realistic attack surface). Fails CLOSED: a missing entry or a
+# mismatch returns non-zero so the caller discards the download and aborts. If NO
+# sha256 tool exists on the host at all, we cannot verify — log and allow (TLS to the
+# default base still applies); a checksum tool is present on effectively every host.
+verify_node_sha256() {  # $1=file  $2=SHASUMS256-text  $3=artifact-name
+  local file="$1" sums="$2" name="$3" expected="" got="" h f _rest
+  while read -r h f _rest; do
+    [ "$f" = "$name" ] && { expected="$h"; break; }
+  done <<<"$sums"
+  [ -n "$expected" ] || { log "no SHASUMS256 entry for $name — refusing unverified Node"; return 1; }
+  if command -v sha256sum >/dev/null 2>&1; then
+    got="$(sha256sum "$file" 2>/dev/null)"; got="${got%% *}"
+  elif command -v shasum >/dev/null 2>&1; then
+    got="$(shasum -a 256 "$file" 2>/dev/null)"; got="${got%% *}"
+  else
+    log "no sha256 tool available to verify Node download — proceeding (TLS-only integrity)"
+    return 0
+  fi
+  if [ -n "$got" ] && [ "$got" = "$expected" ]; then
+    return 0
+  fi
+  log "Node checksum MISMATCH for $name (expected ${expected}, got ${got:-none}) — discarding"
+  return 1
+}
+
 # Resolve a usable Node runtime, echoing its path on success. Prefers a recent-enough
 # system node (downloads nothing); otherwise downloads an official build (which bundles
 # npm — needed to install the CLI) into $NODE_DIR once.
@@ -135,6 +194,7 @@ resolve_node() {
     [ -n "$artifact" ] || { log "could not resolve a node $NODE_CHANNEL win-${ARCH} build"; return 1; }
     dir="${artifact%.zip}"
     if curl -fsSL "$NODE_DIST_BASE/$NODE_CHANNEL/$artifact" -o "$NODE_DIR/$artifact" 2>/dev/null \
+       && verify_node_sha256 "$NODE_DIR/$artifact" "$shasums" "$artifact" \
        && unzip -oq "$NODE_DIR/$artifact" -d "$NODE_DIR" 2>/dev/null; then
       ln -sfn "$NODE_DIR/$dir" "$NODE_DIR/current"
       rm -f "$NODE_DIR/$artifact" 2>/dev/null || true
@@ -156,6 +216,7 @@ resolve_node() {
   [ -n "$artifact" ] || { log "could not resolve a node $NODE_CHANNEL build for ${node_os}-${ARCH}"; return 1; }
   dir="${artifact%.tar.gz}"
   if curl -fsSL "$NODE_DIST_BASE/$NODE_CHANNEL/$artifact" -o "$NODE_DIR/$artifact" 2>/dev/null \
+     && verify_node_sha256 "$NODE_DIR/$artifact" "$shasums" "$artifact" \
      && tar -xzf "$NODE_DIR/$artifact" -C "$NODE_DIR" 2>/dev/null; then
     ln -sfn "$NODE_DIR/$dir" "$NODE_DIR/current"
     rm -f "$NODE_DIR/$artifact" 2>/dev/null || true

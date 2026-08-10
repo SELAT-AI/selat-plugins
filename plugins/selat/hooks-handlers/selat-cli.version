@@ -1,0 +1,6 @@
+# Pinned @selat-ai/selat-cli version installed by the SELAT plugin's SessionStart
+# hook (ensure-runner.sh reads this file). SINGLE SOURCE OF TRUTH — release
+# automation bumps THIS file after vetting a release, so what installs is exactly
+# what was reviewed (never a floating `latest`). SELAT_CLI_SPEC overrides it.
+# Format: one bare semver on its own line; lines starting with # are comments.
+0.15.9
