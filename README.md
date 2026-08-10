@@ -99,13 +99,19 @@ plugins/
       selat.mdc                      # Cursor standing reminder (alwaysApply rule — Cursor's
                                      #   beforeSubmitPrompt can't inject context, so the nudge lives here)
     hooks/
-      hooks.json                     # Claude Code: SessionStart, UserPromptSubmit, PreToolUse(Bash)
+      hooks.json                     # Claude Code: SessionStart, UserPromptSubmit, PreToolUse(Bash), PostToolUse
       hooks-cursor.json              # Cursor: sessionStart, beforeShellExecution(matcher: selat)
     hooks-handlers/                  # scripts (Anthropic convention: wiring in hooks/, scripts here)
-      ensure-runner.sh               # DETECT + GUIDE (never auto-creates a wallet)
+      ensure-runner.sh               # SessionStart: DETECT + GUIDE (never auto-creates a wallet); installs
+                                     #   the version-pinned runner; shell-rc PATH edit is opt-in (SELAT_PATH_AUTOADD=1)
       selat-context.sh               # Claude UserPromptSubmit availability reminder (cat <<'EOF' heredoc)
-      auto-approve-selat.sh          # Claude PreToolUse: auto-approve READ-ONLY selat only
+      auto-approve-selat.sh          # Claude PreToolUse: auto-approve BARE READ-ONLY selat only (thin wrapper)
       auto-approve-selat-cursor.sh   # Cursor beforeShellExecution: same policy, Cursor permission schema
+      selat-fallback.sh              # PostToolUse: nudge toward SELAT after an access/auth/paywall failure
+      lib/
+        classify-selat.sh            # shared decode + classify core for both auto-approve hooks (fail-closed)
+      selat-cli.version              # pinned @selat-ai/selat-cli version — source of truth for what installs
+      check-approve.sh               # regression harness asserting the auto-approve classifier verdicts
       run-hook.cmd                   # polyglot Windows/Unix wrapper (cross-OS hook support)
     skills/
       selat-discovery/SKILL.md       # driver skill (the two-tier loop)
@@ -115,8 +121,12 @@ plugins/
   selat-hermes/
     plugin.yaml                      # Hermes plugin manifest
     __init__.py                      # register() installs the @selat-ai/selat-cli runner
+    after-install.md                 # post-install note shown after the plugin is enabled
 guides/
   claude-code.md  codex.md  cursor.md  gemini-cli.md  openclaw.md  hermes.md  generic.md
+.github/
+  workflows/sync-selat-cli-version.yml   # polls npm; opens a PR to bump the runner pin + doc markers
+  scripts/sync-selat-cli-version.sh      # the rewrite the workflow runs (pin file + version markers)
 ```
 
 Standing-reminder mechanism differs by harness: a **UserPromptSubmit hook** on Claude Code
