@@ -2,10 +2,16 @@
 #
 # Sync every @selat-ai/selat-cli version reference in this repo to a target version.
 #
-# These references are documentation / comment markers only — the runtime installer
-# (plugins/selat/hooks-handlers/ensure-runner.sh) already tracks the `latest` dist-tag
-# via CLI_SPEC, so install behavior never depends on these strings. We keep them in
-# sync so the docs (and the "verified against vX" markers) match what users actually get.
+# Two kinds of reference, and they are NOT equivalent:
+#   1. The runtime PIN — plugins/selat/hooks-handlers/selat-cli.version — is
+#      AUTHORITATIVE: ensure-runner.sh reads it to decide what actually installs.
+#      Bumping it here IS the release action, so this script must always update it,
+#      and merging the resulting PR is the deliberate act of shipping that version.
+#   2. Documentation / comment markers (SKILL.md command reference, the
+#      "verified against vX" markers in ensure-runner.sh) — kept in sync so the docs
+#      match what installs.
+# (Historical note: the installer used to float to the `latest` dist-tag, so these
+# strings were cosmetic. That is no longer true — the pin file gates install behavior.)
 #
 # Idempotent: running it again with the same version is a no-op (produces no diff).
 #
@@ -31,6 +37,22 @@ FILES=(
   "plugins/selat/skills/selat-discovery/SKILL.md"
   "plugins/selat/hooks-handlers/ensure-runner.sh"
 )
+
+# The runtime PIN file is authoritative for what installs, so it MUST move with every
+# release. It's a bare semver on its own line (with `#` comments) — rewrite that line
+# specifically (the inline-marker regexes below do not match a standalone semver). If
+# it's ever missing, that's a release blocker, not a skippable doc: fail loudly.
+PIN_PATH="$ROOT/plugins/selat/hooks-handlers/selat-cli.version"
+if [ -f "$PIN_PATH" ]; then
+  VER="$VER" perl -0pi -e '
+    my $v = $ENV{VER};
+    s{^([ \t]*)\d+\.\d+\.\d+([ \t]*)$}{$1$v$2}mg;
+  ' "$PIN_PATH"
+else
+  echo "error: runtime pin file not found at plugins/selat/hooks-handlers/selat-cli.version" >&2
+  echo "       this file gates what installs and MUST ship with the plugin — aborting." >&2
+  exit 3
+fi
 
 for f in "${FILES[@]}"; do
   path="$ROOT/$f"
