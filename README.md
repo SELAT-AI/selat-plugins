@@ -121,8 +121,12 @@ plugins/
   selat-hermes/
     plugin.yaml                      # Hermes plugin manifest
     __init__.py                      # register() installs the @selat-ai/selat-cli runner
+    after-install.md                 # post-install note shown after the plugin is enabled
 guides/
   claude-code.md  codex.md  cursor.md  gemini-cli.md  openclaw.md  hermes.md  generic.md
+.github/
+  workflows/sync-selat-cli-version.yml   # polls npm; opens a PR to bump the runner pin + doc markers
+  scripts/sync-selat-cli-version.sh      # the rewrite the workflow runs (pin file + version markers)
 ```
 
 Standing-reminder mechanism differs by harness: a **UserPromptSubmit hook** on Claude Code
