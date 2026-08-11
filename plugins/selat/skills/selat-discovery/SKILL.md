@@ -230,5 +230,6 @@ Actor input is per-Actor (e.g. `{"username":["natgeo"],"resultsLimit":3}`) — r
 >   overrides: `--max-amount <usd>`, `--chain <key>`, `--raw-key`.
 > • `--max-amount` is also the mandatory cost cap on the underlying `selat-pay` engine.
 > • `selat doctor` prints sectioned diagnostics (Binaries · Agent-payment skill · Circle
->   CLI · Agent Wallet · selat-pay · Config · Router reachability) and ends with
->   "All checks passed." (exit 0) or "N check(s) failed." (exit 1).
+>   CLI · Agent Wallet · Spending policy (per chain) · selat-pay · Config · Router
+>   reachability) and ends with "All checks passed." (exit 0) or "N check(s) failed."
+>   (exit 1).
