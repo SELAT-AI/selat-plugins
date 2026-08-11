@@ -21,7 +21,7 @@ description: >-
 > source of truth for exact subcommand flags, output shapes, and any commands added
 > after the pinned CLI version. Where they conflict, the published skill wins. The
 > command surface below was verified against @selat-ai/selat-cli@0.15.13 and
-> @selat-ai/selat-discovery@0.17.1.
+> @selat-ai/selat-discovery@0.18.1.
 
 SELAT is a capability layer for AI agents. It does two things Zero-style flat indexes
 don't: it checks **vetted skills first**, and it pays from the **user's own wallet** —
@@ -217,7 +217,7 @@ Actor input is per-Actor (e.g. `{"username":["natgeo"],"resultsLimit":3}`) — r
 | `selat spend` | Unified spend report: settled spend + Apify token utilization (read-only) | no |
 
 > Flag surface verified against @selat-ai/selat-cli@0.15.13 (`lib/commands/run.mjs`,
-> `lib/commands/skill.mjs`) and @selat-ai/selat-discovery@0.17.1:
+> `lib/commands/skill.mjs`) and @selat-ai/selat-discovery@0.18.1:
 > • `selat search "<intent>"` (`lib/commands/search.mjs`) is FREE discovery — the same
 >   ranker as `selat run` in its no-`--pick` mode, so it never settles. Flags: `--top N`
 >   (default 5), `--json` (for agents/hooks), `--explain` (why each match is/isn't
