@@ -21,7 +21,7 @@ description: >-
 > source of truth for exact subcommand flags, output shapes, and any commands added
 > after the pinned CLI version. Where they conflict, the published skill wins. The
 > command surface below was verified against @selat-ai/selat-cli@0.15.18 and
-> @selat-ai/selat-discovery@0.19.1.
+> @selat-ai/selat-discovery@0.19.2.
 
 SELAT is a capability layer for AI agents. It does two things Zero-style flat indexes
 don't: it checks **vetted skills first**, and it pays from the **user's own wallet** —
@@ -66,7 +66,15 @@ holds keys or balance. So:
   set via `selat setup-policy` (recommended before deposits > $20); funding via
   `selat fund`. Both are user-driven money actions — never run them unprompted.
 - **Funding is two movements**: (1) top up the agent wallet address with USDC, then (2)
-  `selat fund` deposits it into Gateway. After funding, refer only to **"the Gateway balance"**
+  `selat fund` deposits it into Gateway. For movement (1) there are two paths: a crypto
+  transfer to the wallet address, or **fiat via `selat fund --onramp [--address 0x…]`**
+  (selat-cli 0.15.17+) — it mints a Circle Onramp browser link, chain-scoped so purchases
+  can't strand. **The user picks the amount inside the widget — never ask for an amount
+  before launching, and never treat the mint as a spend** (nothing moves until the user
+  completes the purchase in their browser; relay the printed URL into chat). To onramp a
+  wallet other than the configured payer, pass `--address 0x…` — **never rewrite the
+  configured wallet to retarget funding**. Never use `circle wallet fund --method fiat`
+  for fiat: that opens Transak, a different, unscoped onramp. After funding, refer only to **"the Gateway balance"**
   — one number, spendable on any supported chain; never enumerate per-chain balances to the user.
   Verify it with `circle gateway balance --all`, or the Gateway line in `selat doctor` —
   **never** the wallet's on-chain address balance. A deposit moves USDC from the address into
@@ -213,6 +221,7 @@ Actor input is per-Actor (e.g. `{"username":["natgeo"],"resultsLimit":3}`) — r
 | `selat search "<intent>"` | Discover + rank endpoints for a capability (FREE; no wallet, no spend) | no |
 | `selat run "<intent>"` | Discover + rank + pay for an x402 service | **yes** |
 | `selat fund` | Top up Circle Gateway balance | **yes** |
+| `selat fund --onramp [--address 0x…]` | Mint a fiat (card) Circle Onramp browser link — amount picked in the widget, purchase completed by the user there | no spend at mint; the purchase is user-driven |
 | `selat setup-policy` | Set Circle spending limits | no spend, changes policy (user runs it) |
 | `selat history` | Show locally recorded Gateway micropayments | no |
 | `selat spend` | Unified spend report: settled spend + Apify token utilization (read-only) | no |
