@@ -12,8 +12,10 @@ funds a wallet and never moves money. Wallet onboarding is the user's own `selat
 Fail-safe throughout: every step is guarded; a failure degrades to "not available" rather
 than crashing the agent (Hermes also catches plugin errors).
 
-VERIFY: written against the Hermes plugin docs (register(ctx), ctx.register_skill). The
-exact ctx API surface has not been validated on a live Hermes — confirm before relying on it.
+Validated on live Hermes: installs work. `register(ctx)` fires and the runner installs
+cleanly (the install runs inside `register`, so a working install confirms the entry point).
+The remaining ctx calls (`ctx.register_skill`, `ctx.inject_message`) stay guarded (try/except),
+so any future plugin-API drift degrades to "not available" rather than crashing.
 """
 from __future__ import annotations
 
