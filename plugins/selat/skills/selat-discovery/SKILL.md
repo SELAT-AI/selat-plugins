@@ -227,7 +227,7 @@ Actor input is per-Actor (e.g. `{"username":["natgeo"],"resultsLimit":3}`) — r
 | `selat spend` | Unified spend report: settled spend + Apify token utilization (read-only) | no |
 
 > Flag surface verified against @selat-ai/selat-cli@0.15.20 (`lib/commands/run.mjs`,
-> `lib/commands/skill.mjs`) and @selat-ai/selat-discovery@0.19.1:
+> `lib/commands/skill.mjs`) and @selat-ai/selat-discovery@0.20.0:
 > • `selat search "<intent>"` (`lib/commands/search.mjs`) is FREE discovery — the same
 >   ranker as `selat run` in its no-`--pick` mode, so it never settles. Flags: `--top N`
 >   (default 5), `--json` (for agents/hooks), `--explain` (why each match is/isn't
