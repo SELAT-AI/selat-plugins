@@ -36,7 +36,7 @@ wires that runner into each host.
 
 - **Two-tier discovery.** SELAT checks **vetted, evaluated multi-step skills** first
   (`SELAT-AI/selat-skills`), then falls back to a **federated x402 / MPP endpoint
-  catalog** (Circle + x402 Bazaar + MPP + Apify + SELAT's own
+  catalog** (Circle + MPP + Apify + pay.sh + SELAT's own
   `catalog.selat.ai`, merged). A flat index is one-tier.
   Discovery itself is **free** — `selat search "<intent>"` ranks candidates with no
   wallet or spend; only `selat run` / `selat skill run` pay.

@@ -12,7 +12,7 @@
   "interface": {
     "displayName": "SELAT",
     "shortDescription": "Find vetted skills and pay for x402/MPP capabilities from any agent — self-custody.",
-    "longDescription": "SELAT is a two-tier capability layer for AI agents. It first checks vetted, evaluated multi-step skills (SELAT-AI/selat-skills), then falls back to a federated x402 / MPP endpoint catalog (Circle + x402 Bazaar + MPP merged) — image/video/audio generation, translation, web scraping, data enrichment, real-time data, on-chain actions. Payments settle per use from your own Circle Agent Wallet (MPC self-custody): SELAT never sees a private key or holds your funding balance. No per-service signup.",
+    "longDescription": "SELAT is a two-tier capability layer for AI agents. It first checks vetted, evaluated multi-step skills (SELAT-AI/selat-skills), then falls back to a federated x402 / MPP endpoint catalog (Circle + MPP + Apify + pay.sh merged) — image/video/audio generation, translation, web scraping, data enrichment, real-time data, on-chain actions. Payments settle per use from your own Circle Agent Wallet (MPC self-custody): SELAT never sees a private key or holds your funding balance. No per-service signup.",
     "developerName": "SELAT",
     "category": "Productivity",
     "websiteURL": "https://selat.ai"
