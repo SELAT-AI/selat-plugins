@@ -19,8 +19,8 @@ gemini extensions install https://github.com/SELAT-AI/selat-plugins --auto-updat
 
 The Gemini variant differs from the Claude/Codex plugin:
 
-- `gemini-extension.json` declares `contextFileName: "GEMINI.md"` (no `mcpServers` — SELAT
-  has no MCP connector).
+- `gemini-extension.json` declares `contextFileName: "GEMINI.md"` (no `mcpServers` — this
+  extension wraps the `selat` CLI; hosted discovery MCP is at `https://catalog.selat.ai/mcp`).
 - **No hooks.** Gemini CLI loads `GEMINI.md` once per session as standing context (the
   idiomatic mechanism), so SELAT's availability reminder lives in `GEMINI.md`, not a
   per-prompt hook. Runner provisioning is not auto-run on Gemini: `GEMINI.md` instructs the
