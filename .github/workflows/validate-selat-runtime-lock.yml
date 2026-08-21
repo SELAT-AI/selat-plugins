@@ -1,7 +1,7 @@
 name: Validate SELAT runtime lock
 
 # Block changes that would make the plugin's reviewed CLI/discovery/payment
-# runtime non-reproducible or inconsistent with its SessionStart installer.
+# runtime non-reproducible or inconsistent with its SessionStart / Hermes installers.
 
 on:
   pull_request:
@@ -10,6 +10,11 @@ on:
       - 'plugins/selat/hooks-handlers/selat-cli.version'
       - 'plugins/selat/hooks-handlers/selat-runtime-package.json'
       - 'plugins/selat/hooks-handlers/selat-runtime-package-lock.json'
+      - 'plugins/selat-hermes/__init__.py'
+      - 'plugins/selat-hermes/selat-cli.version'
+      - 'plugins/selat-hermes/selat-runtime-package.json'
+      - 'plugins/selat-hermes/selat-runtime-package-lock.json'
+      - 'plugins/selat-hermes/test_ensure_runner.py'
       - '.github/scripts/regenerate-selat-runtime-lock.sh'
       - '.github/scripts/validate-selat-runtime-lock.sh'
       - '.github/workflows/validate-selat-runtime-lock.yml'
@@ -22,6 +27,11 @@ on:
       - 'plugins/selat/hooks-handlers/selat-cli.version'
       - 'plugins/selat/hooks-handlers/selat-runtime-package.json'
       - 'plugins/selat/hooks-handlers/selat-runtime-package-lock.json'
+      - 'plugins/selat-hermes/__init__.py'
+      - 'plugins/selat-hermes/selat-cli.version'
+      - 'plugins/selat-hermes/selat-runtime-package.json'
+      - 'plugins/selat-hermes/selat-runtime-package-lock.json'
+      - 'plugins/selat-hermes/test_ensure_runner.py'
       - '.github/scripts/regenerate-selat-runtime-lock.sh'
       - '.github/scripts/validate-selat-runtime-lock.sh'
       - '.github/workflows/validate-selat-runtime-lock.yml'
@@ -50,6 +60,9 @@ jobs:
 
       - name: Validate runtime manifest, lockfile, and installer contract
         run: .github/scripts/validate-selat-runtime-lock.sh
+
+      - name: Hermes pin fail-closed tests
+        run: python3 plugins/selat-hermes/test_ensure_runner.py
 
       - name: Reject malformed repository changes
         run: git diff --check HEAD^ HEAD

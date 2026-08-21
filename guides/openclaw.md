@@ -36,10 +36,13 @@ of the `.claude-plugin/` bundle is documented, but test with a local install fir
 ## First-run setup (self-custody)
 
 SELAT pays from **your own Circle Agent Wallet** (MPC self-custody) — it never holds your keys or
-funds, and never creates a wallet for you. Run onboarding yourself:
+funds, and never creates a wallet for you. The bundle's SessionStart hook installs the reviewed
+runtime (pin + lock, `npm ci --ignore-scripts`) into the plugin-owned prefix. Do **not** run
+`npm i -g @selat-ai/selat-cli` or `@latest` as the OpenClaw payment path.
+
+Run onboarding yourself:
 
 ```bash
-npm i -g @selat-ai/selat-cli
 selat init      # checks skill, Circle auth, Agent Wallet, selat-pay, config — installs Circle CLI if missing
 selat doctor    # confirm everything is green
 ```
@@ -57,13 +60,11 @@ runner shim into `~/.openclaw/bin/selat`** (a dir already on OpenClaw's PATH), s
 every session. The symlink persists across sessions.
 
 If `selat` still isn't found (the hook didn't run, or `~/.openclaw/bin` isn't on your PATH), link it by
-hand — at the plugin shim if present, else the global npm bin:
+hand from the plugin shim (the payment runner — not a random global `selat`):
 
 ```bash
 mkdir -p ~/.openclaw/bin
 ln -sf ~/.cache/selat-plugins/runtime/bin/selat ~/.openclaw/bin/selat   # plugin-provisioned shim
-# …or if you installed the runner globally:
-# ln -sf "$(npm prefix -g)/bin/selat" ~/.openclaw/bin/selat
 selat doctor
 ```
 
@@ -79,5 +80,7 @@ selat doctor                      # confirm after updating
 ```
 
 A fix that lives in the plugin **hook** (like the PATH symlink above) reaches an existing install
-**only after** you run this. The **runner** (`@selat-ai/selat-cli`) is separate — the SessionStart hook
-pulls the latest runner each session, so runner-side changes arrive without a bundle update.
+**only after** you run this. The **runner** (`@selat-ai/selat-cli`) is the reviewed closure shipped
+in that bundle (pin file + lock, installed with `npm ci --ignore-scripts`). SessionStart does **not**
+pull npm `latest` each session — a new runner arrives when you update the bundle (new pin + lock) and
+start a new session.

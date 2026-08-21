@@ -1,7 +1,9 @@
 # SELAT installed
 
-On first load the plugin ensures the `@selat-ai/selat-cli` runner is on your PATH
-(`npm i -g @selat-ai/selat-cli` — needs Node.js ≥ 18; no Python). The runner bundles the
+On first load the plugin installs the reviewed `@selat-ai/selat-cli` runtime into a
+plugin-owned prefix (`npm ci --ignore-scripts` against the vendored pin + lock —
+needs Node.js ≥ 18; no Python). It does **not** install npm `latest` and does not
+treat a random `selat` earlier on PATH as the payment runner. The runner bundles the
 `selat-discovery` skill and the `selat-pay` engine.
 
 **Free right now, no wallet needed:**

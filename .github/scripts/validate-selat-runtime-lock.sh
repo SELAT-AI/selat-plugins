@@ -12,6 +12,11 @@ MANIFEST="$HOOK_DIR/selat-runtime-package.json"
 LOCKFILE="$HOOK_DIR/selat-runtime-package-lock.json"
 PIN_FILE="$HOOK_DIR/selat-cli.version"
 INSTALLER="$HOOK_DIR/ensure-runner.sh"
+HERMES_DIR="$ROOT/plugins/selat-hermes"
+HERMES_INSTALLER="$HERMES_DIR/__init__.py"
+HERMES_PIN="$HERMES_DIR/selat-cli.version"
+HERMES_MANIFEST="$HERMES_DIR/selat-runtime-package.json"
+HERMES_LOCK="$HERMES_DIR/selat-runtime-package-lock.json"
 
 for command in node npm; do
   command -v "$command" >/dev/null 2>&1 || {
@@ -19,7 +24,8 @@ for command in node npm; do
     exit 3
   }
 done
-for path in "$MANIFEST" "$LOCKFILE" "$PIN_FILE" "$INSTALLER"; do
+for path in "$MANIFEST" "$LOCKFILE" "$PIN_FILE" "$INSTALLER" \
+            "$HERMES_INSTALLER" "$HERMES_PIN" "$HERMES_MANIFEST" "$HERMES_LOCK"; do
   [ -f "$path" ] || {
     echo "error: required runtime artifact is missing: $path" >&2
     exit 3
@@ -97,6 +103,32 @@ grep -Fq -- '--ignore-scripts' "$INSTALLER" || {
   echo "error: installer must suppress lifecycle scripts" >&2
   exit 5
 }
+
+# Hermes copies only plugins/selat-hermes/ on the documented subdirectory
+# install, so its vendored pin/lock must match the reviewed SessionStart
+# closure and its installer must not float npm latest.
+for name in selat-cli.version selat-runtime-package.json selat-runtime-package-lock.json; do
+  cmp -s "$HOOK_DIR/$name" "$HERMES_DIR/$name" || {
+    echo "error: Hermes vendored $name does not match $HOOK_DIR/$name" >&2
+    exit 5
+  }
+done
+grep -Fq '"ci"' "$HERMES_INSTALLER" || {
+  echo "error: Hermes installer must use npm ci" >&2
+  exit 5
+}
+grep -Fq -- '--ignore-scripts' "$HERMES_INSTALLER" || {
+  echo "error: Hermes installer must suppress lifecycle scripts" >&2
+  exit 5
+}
+if grep -Fq 'return "latest"' "$HERMES_INSTALLER" || grep -Fq "return 'latest'" "$HERMES_INSTALLER"; then
+  echo "error: Hermes installer must not fall back to npm latest" >&2
+  exit 5
+fi
+if grep -Eq 'npm install -g|npm i -g' "$HERMES_INSTALLER"; then
+  echo "error: Hermes installer must not globally install an unpinned payment CLI" >&2
+  exit 5
+fi
 
 printf 'SELAT runtime lock valid: cli=%s discovery=%s pay=%s ws=8.21.0\n' \
   "$PIN_VERSION" \

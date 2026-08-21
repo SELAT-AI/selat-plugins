@@ -72,8 +72,9 @@ jobs:
 
             The workflow regenerated `selat-runtime-package.json` and its npm lockfile
             with lifecycle scripts disabled, then validated direct versions, npm
-            integrity metadata, the `ws@8.21.0` override, and the SessionStart
-            installer's `npm ci --ignore-scripts` contract.
+            integrity metadata, the `ws@8.21.0` override, the SessionStart
+            installer's `npm ci --ignore-scripts` contract, and byte-identical
+            vendored copies in `plugins/selat-hermes/` (subdirectory install).
 
             > Review and merge this PR only after the component release notes and
             > cross-repository compatibility checks have been approved. Merging changes

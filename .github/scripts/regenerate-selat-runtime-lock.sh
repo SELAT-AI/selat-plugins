@@ -32,6 +32,7 @@ done
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 HOOK_DIR="$ROOT/plugins/selat/hooks-handlers"
+HERMES_DIR="$ROOT/plugins/selat-hermes"
 MANIFEST="$HOOK_DIR/selat-runtime-package.json"
 LOCKFILE="$HOOK_DIR/selat-runtime-package-lock.json"
 PIN_FILE="$HOOK_DIR/selat-cli.version"
@@ -42,7 +43,7 @@ for command in node npm; do
     exit 3
   }
 done
-for path in "$HOOK_DIR" "$PIN_FILE"; do
+for path in "$HOOK_DIR" "$PIN_FILE" "$HERMES_DIR"; do
   [ -e "$path" ] || {
     echo "error: required path is missing: $path" >&2
     exit 3
@@ -103,6 +104,12 @@ CLI_VERSION="$CLI_VERSION" perl -0pi -e '
   my $v = $ENV{CLI_VERSION};
   s{^([ \t]*)\d+\.\d+\.\d+(?:-[0-9A-Za-z][0-9A-Za-z.-]*)?(?:\+[0-9A-Za-z][0-9A-Za-z.-]*)?([ \t]*)$}{$1$v$2}mg;
 ' "$PIN_FILE"
+
+# Hermes subdirectory installs copy only plugins/selat-hermes/, so the reviewed
+# closure must also live next to that plugin. Keep these byte-identical.
+install -m 0644 "$MANIFEST" "$HERMES_DIR/selat-runtime-package.json"
+install -m 0644 "$LOCKFILE" "$HERMES_DIR/selat-runtime-package-lock.json"
+install -m 0644 "$PIN_FILE" "$HERMES_DIR/selat-cli.version"
 
 # Reuse the independent verifier so local use and CI enforce the same contract.
 "$ROOT/.github/scripts/validate-selat-runtime-lock.sh"
