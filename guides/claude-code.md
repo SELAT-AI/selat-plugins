@@ -33,7 +33,7 @@ claude plugin install selat@selat-plugins
 `selat search` / `selat skill list` immediately, no wallet required. You only set up a wallet
 to actually **pay** for a result. SELAT settles payments from **your own Circle Agent Wallet**
 (MPC self-custody) — it never holds your keys or balance and never creates a wallet for you.
-When the first paid call is needed, the agent auto-runs the onboarding command (you enter the
+When the first paid call is needed, the agent asks you and waits before the onboarding command (you enter the
 email + OTP):
 
 ```bash

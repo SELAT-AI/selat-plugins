@@ -50,7 +50,8 @@ holds keys or balance. So:
 - **Free discovery needs no wallet** — `selat search`, `selat skill list`, and `selat doctor` run
   with zero setup. Lead with those; show the user what's available first.
 - **Only when the user wants to actually call/pay** for a result and `selat doctor` reports the
-  wallet/config is missing: auto-run `selat init` then — no permission gate. It installs the Circle
+  wallet/config is missing: **ask the user and wait** before `selat init`, a Circle OTP, or any
+  spend. Do not auto-run `selat init`. After they agree, it installs the Circle
   CLI, then prompts for the user's Circle email + a 6-digit OTP (relay those — the user
   authenticates; in a chat-only harness the OTP necessarily passes through the chat — keep it
   out of logs and summaries, and never store it). On a non-interactive host (no usable TTY) or an
@@ -59,8 +60,9 @@ holds keys or balance. So:
   prints, a 0x address, or `new` (also settable via `SELAT_WALLET`); without it a multi-wallet
   account stops at `Wallet to use [1-N/new]`, which a non-TTY shell can't answer. Don't run
   `selat init` before it's needed, pre-install Circle CLI, or improvise
-  `circle` commands. `selat fund` and any paid call still need explicit approval — never auto-fund
-  or auto-pay.
+  `circle` commands. `selat fund` and any paid call still need explicit approval **and an
+  armed session budget** (`selat budget start`); `selat freeze` is the kill switch — never
+  auto-fund or auto-pay.
 - A `--raw-key` dev mode exists but is **not for production** — do not steer users to it.
 - Before any spend, surface the cost and get the user's go-ahead. Spending limits are
   set via `selat setup-policy` (recommended before deposits > $20); funding via
@@ -216,7 +218,9 @@ Actor input is per-Actor (e.g. `{"username":["natgeo"],"resultsLimit":3}`) — r
 - **Self-custody:** never paste, request, or improvise a private key; never create a
   wallet or move funds on the user's behalf.
 - **Confirm spends:** show the price and get approval before any paying command
-  (`selat run`, `selat skill run`, `selat fund`, `selat setup-policy`).
+  (`selat run`, `selat skill run`, `selat fund`, `selat setup-policy`). Paid calls
+  also need an armed session budget (`selat budget start`); `selat freeze` is the
+  kill switch.
 - **HTTPS only:** SELAT enforces `https://` payment URLs — don't try to route around it.
 - **Degrade honestly:** if the runner or setup is unavailable, say so; don't fabricate
   results or substitute an unvetted external API.
@@ -226,7 +230,7 @@ Actor input is per-Actor (e.g. `{"username":["natgeo"],"resultsLimit":3}`) — r
 | Command | What it does | Money? |
 |---|---|---|
 | `selat doctor` | Diagnose setup (skill, PATH, auth, wallet, config) | no |
-| `selat init` | One-time onboarding: installs Circle CLI, skill, Circle auth, Agent Wallet, selat-pay, config | agent auto-runs; user does the OTP |
+| `selat init` | One-time onboarding: installs Circle CLI, skill, Circle auth, Agent Wallet, selat-pay, config | ask + wait; user does the OTP |
 | `selat skill list` | List/browse vetted skills | no |
 | `selat skill run <name>` | Run a vetted multi-step skill | **yes** |
 | `selat search "<intent>"` | Discover + rank endpoints for a capability (FREE; no wallet, no spend) | no |

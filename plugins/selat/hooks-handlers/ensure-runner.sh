@@ -12,9 +12,10 @@
 #   3. runs `selat doctor` to inspect install / Circle auth / Agent Wallet / config; and
 #   4. emits a SessionStart additionalContext that tells the AGENT what to do:
 #        - if everything checks out, use the full SELAT loop via plain `selat`;
-#        - if the wallet/config is missing, tell the AGENT to AUTO-RUN `selat init`
-#          (no permission gate) — init installs the Circle CLI + drives the wallet
-#          login; we never auto-fund or move money on the user's behalf.
+#        - if the wallet/config is missing, tell the AGENT to ASK the user and WAIT
+#          before `selat init` / Circle OTP / any spend — do not auto-run init.
+#          Paid calls need an armed session budget (`selat budget start`);
+#          `selat freeze` is the kill switch. We never auto-fund.
 #
 # Runner model: the runner IS the published @selat-ai/selat-cli npm package, which
 # bundles @selat-ai/selat-discovery (the skill) + @selat-ai/selat-pay (the pay engine)
@@ -343,18 +344,20 @@ persist_env SELAT_RUNNER "$SHIM_PATH"
 
 # --- session-budget identity (cli >= 0.13 / selat-pay >= 0.9) ---
 # A fresh SELAT_SESSION_ID per agent session gives the per-session spending
-# tripwire its boundary (env config: SELAT_SESSION_BUDGET). The budget itself
-# is OPT-IN: set SELAT_DEFAULT_SESSION_BUDGET in your own environment and
-# every agent session starts pre-armed with that cumulative USD cap —
-# selat-pay then refuses over-budget calls before anything is signed.
+# tripwire its boundary (env config: SELAT_SESSION_BUDGET). Paid calls REQUIRE
+# an armed session budget: set SELAT_DEFAULT_SESSION_BUDGET in your own
+# environment and every agent session starts pre-armed with that cumulative
+# USD cap — selat-pay then refuses over-budget calls before anything is signed.
+# If none is pre-armed, the agent must ASK and run `selat budget start` before
+# any spend. `selat freeze` is the kill switch. Session budget is not optional.
 persist_env SELAT_SESSION_ID "sess-$(date +%s)-$$"
 BUDGET_ASK=""
 if [ -n "${SELAT_DEFAULT_SESSION_BUDGET:-}" ]; then
   persist_env SELAT_SESSION_BUDGET "$SELAT_DEFAULT_SESSION_BUDGET"
 else
-  # No default configured: have the agent ASK the user (once, before the first
-  # paid call) instead of silently running uncapped or imposing a default.
-  BUDGET_ASK=" SESSION BUDGET: none armed for this session. Before the FIRST paid call, ask the user what cumulative spending cap they want for this session (suggest 2 USD) and arm it: selat budget start --amount <usd>. If they decline, say paid calls run uncapped up to the wallet policy and proceed."
+  # No default configured: have the agent ASK and arm a budget before any spend.
+  # Do not tell the agent paid calls may run uncapped.
+  BUDGET_ASK=" SESSION BUDGET: none armed for this session. Paid calls REQUIRE an armed session budget — ask the user what cumulative spending cap they want for this session (suggest 2 USD) and arm it: selat budget start --amount <usd>. Do not run a paid call without that budget. selat freeze is the kill switch."
 fi
 
 # --- put `selat` on PATH ---
@@ -425,7 +428,7 @@ INSTALLED_VERSION="$(cat "$INSTALLED_VERSION_FILE" 2>/dev/null || printf '%s' "$
 # --- DETECT setup state via `selat doctor` (never auto-provision a wallet) ---
 # doctor diagnoses skill / PATH / Circle auth / Agent Wallet / config. We treat a
 # zero exit as "configured"; any non-zero as "needs setup" and steer the agent to
-# AUTO-RUN `selat init` (the hook itself can't — init is interactive); we NEVER fund.
+# ASK the user and WAIT before `selat init` (the hook itself can't — init is interactive); we NEVER fund.
 #
 # Verified against @selat-ai/selat-cli@0.16.3 (lib/commands/doctor.mjs + bin/selat.mjs):
 # `doctor()` counts hard failures and `return 0` only when failures === 0, else
@@ -484,9 +487,9 @@ if [ "$DOCTOR_OK" = "1" ]; then
 fi
 
 if [ "$DOCTOR_OK" = "1" ]; then
-  emit "SELAT runner ready ($CLI_PKG@$INSTALLED_VERSION) and your setup checks out. Invoke it as plain \`selat\` — it's on PATH (immediately on hosts that persist hook env; in new shells elsewhere). If bare \`selat\` doesn't resolve, use the absolute path $SHIM_PATH (also exported as SELAT_RUNNER where supported). Use the SELAT two-tier loop (vetted skills via \`selat skill list\`/\`selat skill run\`, else federated discovery — \`selat search \"<intent>\"\` for FREE ranking, then \`selat run \"<intent>\"\` to pay) and follow the bundled 'selat-discovery' skill. Payments settle from the user's own Circle Agent Wallet (self-custody) — never paste a private key, never improvise auth, and confirm with the user before any spend.$POLICY_NOTE$BUDGET_ASK$NET_NOTE"
+  emit "SELAT runner ready ($CLI_PKG@$INSTALLED_VERSION) and your setup checks out. Invoke it as plain \`selat\` — it's on PATH (immediately on hosts that persist hook env; in new shells elsewhere). If bare \`selat\` doesn't resolve, use the absolute path $SHIM_PATH (also exported as SELAT_RUNNER where supported). Use the SELAT two-tier loop (vetted skills via \`selat skill list\`/\`selat skill run\`, else federated discovery — \`selat search \"<intent>\"\` for FREE ranking, then \`selat run \"<intent>\"\` to pay) and follow the bundled 'selat-discovery' skill. Payments settle from the user's own Circle Agent Wallet (self-custody) — never paste a private key, never improvise auth, and confirm with the user before any spend. Paid calls REQUIRE an armed session budget (\`selat budget start\`); \`selat freeze\` is the kill switch.$POLICY_NOTE$BUDGET_ASK$NET_NOTE"
 else
-  emit "SELAT runner is installed ($CLI_PKG@$INSTALLED_VERSION) but setup is INCOMPLETE (no Circle auth/Agent Wallet yet). That's fine for DISCOVERY: \`selat search\`, \`selat skill list\`, and \`selat doctor\` are FREE and need no wallet — lead with those to show the user what's available. ONLY when the user wants to actually call/pay for a result, auto-run \`selat init\` first (no permission gate) — it installs the Circle CLI + drives the wallet login; relay its email + 6-digit-code prompts (the user authenticates). Do NOT run \`selat init\` before a paid call is needed, pre-install Circle CLI, or improvise \`circle\` commands. \`selat fund\` and any paid call always REQUIRE explicit user approval — never auto-fund or auto-pay.$NET_NOTE"
+  emit "SELAT runner is installed ($CLI_PKG@$INSTALLED_VERSION) but setup is INCOMPLETE (no Circle auth/Agent Wallet yet). That's fine for DISCOVERY: \`selat search\`, \`selat skill list\`, and \`selat doctor\` are FREE and need no wallet — lead with those to show the user what's available. ONLY when the user wants to actually call/pay for a result, ASK the user and WAIT before \`selat init\`, a Circle OTP, or any spend — do not auto-run \`selat init\`. After they agree, it installs the Circle CLI + drives the wallet login; relay its email + 6-digit-code prompts (the user authenticates). Do NOT run \`selat init\` before a paid call is needed, pre-install Circle CLI, or improvise \`circle\` commands. \`selat fund\` and any paid call always REQUIRE explicit user approval and an armed session budget (\`selat budget start\`); \`selat freeze\` is the kill switch — never auto-fund or auto-pay.$NET_NOTE"
 fi
 
 exit 0

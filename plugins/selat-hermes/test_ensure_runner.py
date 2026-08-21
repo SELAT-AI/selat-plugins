@@ -7,6 +7,7 @@ Nothing here talks to npm, installs a payment CLI, or exercises wallet/OTP flows
 from __future__ import annotations
 
 import importlib.util
+import json
 import os
 import shutil
 import stat
@@ -118,6 +119,63 @@ class ResolveSpecTests(unittest.TestCase):
             spec = mod._resolve_cli_spec()
         self.assertIsNone(spec)
 
+    def test_planted_env_pin_lock_does_not_change_resolved_spec(self):
+        """Hostile env pointing at a planted pin/lock must not change the spec."""
+        mod = load_plugin(HERE)
+        baseline = mod._resolve_cli_spec()
+        self.assertIsNotNone(baseline)
+        self.assertNotEqual(baseline, "latest")
+        with tempfile.TemporaryDirectory() as td:
+            planted = Path(td)
+            (planted / "selat-cli.version").write_text("0.0.1\n", encoding="utf-8")
+            (planted / "selat-runtime-package.json").write_text(
+                json.dumps({"dependencies": {mod.CLI_PKG: "0.0.1"}}),
+                encoding="utf-8",
+            )
+            (planted / "selat-runtime-package-lock.json").write_text("{}\n", encoding="utf-8")
+            with _EnvGuard(
+                SELAT_CLI_SPEC=None,
+                SELAT_CLI_PIN_FILE=str(planted / "selat-cli.version"),
+                SELAT_RUNTIME_MANIFEST=str(planted / "selat-runtime-package.json"),
+                SELAT_RUNTIME_LOCK=str(planted / "selat-runtime-package-lock.json"),
+                SELAT_HERMES_DEBUG_ARTIFACTS=None,
+            ):
+                spec = mod._resolve_cli_spec()
+                pin = mod._pin_file()
+                manifest = mod._manifest_file()
+                lock = mod._lock_file()
+            self.assertEqual(spec, baseline)
+            self.assertNotEqual(spec, "0.0.1")
+            self.assertEqual(pin, HERE / "selat-cli.version")
+            self.assertEqual(manifest, HERE / "selat-runtime-package.json")
+            self.assertEqual(lock, HERE / "selat-runtime-package-lock.json")
+
+    def test_missing_vendored_pin_fails_closed_despite_planted_env(self):
+        """Fail closed when vendored pin/lock are missing, even if env points at a plant."""
+        with tempfile.TemporaryDirectory() as td:
+            plugin_dir = Path(td) / "selat-hermes"
+            plugin_dir.mkdir()
+            planted = Path(td) / "planted"
+            planted.mkdir()
+            (planted / "selat-cli.version").write_text("0.0.1\n", encoding="utf-8")
+            (planted / "selat-runtime-package.json").write_text(
+                json.dumps({"dependencies": {"@selat-ai/selat-cli": "0.0.1"}}),
+                encoding="utf-8",
+            )
+            (planted / "selat-runtime-package-lock.json").write_text("{}\n", encoding="utf-8")
+            mod = load_plugin(plugin_dir)
+            with _EnvGuard(
+                SELAT_CLI_SPEC=None,
+                SELAT_CLI_PIN_FILE=str(planted / "selat-cli.version"),
+                SELAT_RUNTIME_MANIFEST=str(planted / "selat-runtime-package.json"),
+                SELAT_RUNTIME_LOCK=str(planted / "selat-runtime-package-lock.json"),
+                SELAT_HERMES_DEBUG_ARTIFACTS=None,
+            ):
+                spec = mod._resolve_cli_spec()
+            self.assertIsNone(spec)
+            self.assertNotEqual(spec, "latest")
+            self.assertNotEqual(spec, "0.0.1")
+
 
 class EnsureRunnerTests(unittest.TestCase):
     def test_missing_pin_does_not_install_latest(self):
@@ -194,6 +252,57 @@ class EnsureRunnerTests(unittest.TestCase):
         self.assertNotIn("latest", joined)
         self.assertNotIn("@selat-ai/selat-cli@latest", joined)
         self.assertNotIn("install", argv)
+
+
+class PluginCopyTests(unittest.TestCase):
+    """Agent-facing copy: ask+wait before init; paid calls need approval + budget."""
+
+    COPY_ROOTS = (
+        HERE.parent / "selat",
+        HERE.parent / "selat-gemini",
+        HERE,
+        HERE.parents[1] / "install.md",
+        HERE.parents[1] / "README.md",
+        HERE.parents[1] / "guides",
+    )
+
+    def _iter_copy(self):
+        for root in self.COPY_ROOTS:
+            if root.is_file():
+                yield root
+                continue
+            for p in root.rglob("*"):
+                if p.is_file() and p.suffix in {".md", ".sh", ".mdc"}:
+                    yield p
+
+    def test_copy_does_not_auto_run_init_ungated(self):
+        hits = []
+        instruct = (
+            "auto-run `selat init` first",
+            "auto-run `selat init` then",
+            "auto-run `selat init` only",
+            "auto-run selat init only",
+            "run `selat init` automatically",
+            "no permission gate",
+        )
+        for path in self._iter_copy():
+            text = path.read_text(encoding="utf-8")
+            for needle in instruct:
+                if needle in text:
+                    hits.append(f"{path}: {needle}")
+        self.assertEqual(hits, [])
+
+    def test_paid_call_copy_requires_approval_and_budget(self):
+        for path in (
+            HERE.parent / "selat" / "AGENTS.md",
+            HERE.parent / "selat-gemini" / "GEMINI.md",
+            HERE.parent / "selat" / "skills" / "selat-discovery" / "SKILL.md",
+            HERE.parent / "selat" / "hooks-handlers" / "ensure-runner.sh",
+        ):
+            text = path.read_text(encoding="utf-8")
+            self.assertIn("ask the user and wait", text.lower())
+            self.assertIn("selat budget start", text)
+            self.assertIn("selat freeze", text)
 
 
 if __name__ == "__main__":

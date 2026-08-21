@@ -41,11 +41,29 @@ _SEMVER = re.compile(
 )
 
 
+# Hostile process env can point SELAT_CLI_PIN_FILE / SELAT_RUNTIME_MANIFEST /
+# SELAT_RUNTIME_LOCK at a different payment CLI. Production Hermes install
+# ignores those overrides. Honor them only when this explicit debug flag is "1".
+_DEBUG_ARTIFACTS = "SELAT_HERMES_DEBUG_ARTIFACTS"
+
+
+def _debug_artifacts() -> bool:
+    return os.environ.get(_DEBUG_ARTIFACTS, "").strip() == "1"
+
+
 def _artifact(name: str, env_var: str) -> Path | None:
-    env = os.environ.get(env_var, "").strip()
-    if env:
-        p = Path(env)
-        return p if p.is_file() else None
+    """Vendored file next to this module, else sibling SessionStart copy.
+
+    Production ignores ``env_var``. A debug flag (defaults off) may honor an
+    existing override path. Missing vendored + sibling artifacts fail closed
+    (``None``) — never a floating spec.
+    """
+    if _debug_artifacts():
+        env = os.environ.get(env_var, "").strip()
+        if env:
+            p = Path(env)
+            if p.is_file():
+                return p
     for p in (PLUGIN_DIR / name, SIBLING_HOOKS / name):
         if p.is_file():
             return p
@@ -95,8 +113,10 @@ def _resolve_cli_spec() -> str | None:
 
     Never returns ``latest`` or an empty spec. The documented Hermes install copies
     only ``plugins/selat-hermes/``, so the pin is vendored next to this file.
-    ``SELAT_CLI_SPEC`` may name that same reviewed version; it cannot float a
-    different release or the npm ``latest`` dist-tag.
+    ``SELAT_CLI_PIN_FILE`` / ``SELAT_RUNTIME_MANIFEST`` / ``SELAT_RUNTIME_LOCK``
+    are ignored unless ``SELAT_HERMES_DEBUG_ARTIFACTS=1``. ``SELAT_CLI_SPEC`` may
+    name that same reviewed version; it cannot float a different release or the
+    npm ``latest`` dist-tag.
     """
     pin = _read_pin(_pin_file())
     locked = _locked_cli_version(_manifest_file())
