@@ -20,8 +20,8 @@ description: >-
 > @selat-ai/selat-discovery SKILL.md (bundled inside @selat-ai/selat-cli) remains the
 > source of truth for exact subcommand flags, output shapes, and any commands added
 > after the pinned CLI version. Where they conflict, the published skill wins. The
-> command surface below was verified against @selat-ai/selat-cli@0.15.22 and
-> @selat-ai/selat-discovery@0.21.0.
+> command surface below was verified against @selat-ai/selat-cli@0.16.3 and
+> @selat-ai/selat-discovery@0.24.1.
 
 SELAT is a capability layer for AI agents. It does two things Zero-style flat indexes
 don't: it checks **vetted skills first**, and it pays from the **user's own wallet** —
@@ -112,12 +112,22 @@ and `--raw-key` (dev-only EOA signing — do not steer users to it).
 If a vetted skill covers the task, prefer it: it's a known-good, capped workflow. Pass
 `--max-amount` to hold the spend to a number the user approved.
 
+`selat skill run <name> --help` is a **safe no-op** as of selat-cli 0.16.2 — it prints
+usage and returns without resolving or paying. Before that it was the one paying
+subcommand where help was not inert: the flag fell through as a pass-through skill
+param and the skill **resolved and paid**. Inspecting a command is now safe, but only
+on 0.16.2+; on an older pinned runner, do not append `--help` to `skill run`.
+
 ### Tier 2 — federated endpoint catalog (fallback)
 
 If no skill fits, fall back to the federated x402 / MPP endpoint catalog (Circle +
-MPP + Apify + pay.sh (Solana) + SELAT's own first-party `catalog.selat.ai`,
-merged). The x402 Bazaar was dropped as a source in selat-discovery 0.21.0, so
-no result carries `sourceCatalog: "bazaar"` any more.
+MPP + Apify + pay.sh (Solana) + Heurist Mesh + Cambrian + SELAT's own first-party
+`catalog.selat.ai`, merged). The x402 Bazaar was dropped as a source in
+selat-discovery 0.21.0, so no result carries `sourceCatalog: "bazaar"` any more;
+Heurist Mesh and Cambrian were added in 0.23.0, so `sourceCatalog` /
+`sources[].catalog` can now carry `"heurist"` or `"cambrian"`. Don't hardcode a
+catalog count when rendering "N/&lt;total&gt; catalogs" — the source list changes
+between releases.
 Discover first (free), then pay:
 
 ```
@@ -211,7 +221,7 @@ Actor input is per-Actor (e.g. `{"username":["natgeo"],"resultsLimit":3}`) — r
 - **Degrade honestly:** if the runner or setup is unavailable, say so; don't fabricate
   results or substitute an unvetted external API.
 
-## Command quick reference (selat-cli v0.15.22)
+## Command quick reference (selat-cli v0.16.3)
 
 | Command | What it does | Money? |
 |---|---|---|
@@ -227,8 +237,8 @@ Actor input is per-Actor (e.g. `{"username":["natgeo"],"resultsLimit":3}`) — r
 | `selat history` | Show locally recorded Gateway micropayments | no |
 | `selat spend` | Unified spend report: settled spend + Apify token utilization (read-only) | no |
 
-> Flag surface verified against @selat-ai/selat-cli@0.15.22 (`lib/commands/run.mjs`,
-> `lib/commands/skill.mjs`) and @selat-ai/selat-discovery@0.21.0:
+> Flag surface verified against @selat-ai/selat-cli@0.16.3 (`lib/commands/run.mjs`,
+> `lib/commands/skill.mjs`) and @selat-ai/selat-discovery@0.24.1:
 > • `selat search "<intent>"` (`lib/commands/search.mjs`) is FREE discovery — the same
 >   ranker as `selat run` in its no-`--pick` mode, so it never settles. Flags: `--top N`
 >   (default 5), `--json` (for agents/hooks), `--explain` (why each match is/isn't
@@ -237,6 +247,21 @@ Actor input is per-Actor (e.g. `{"username":["natgeo"],"resultsLimit":3}`) — r
 >   auto-applied by `rank.mjs --pick` (~50% over catalog price, uncapped hints rejected).
 >   For an **Apify** pick (prepaid-token model) it also accepts `--input '<json>'` /
 >   `--input-file <path>` to carry the Actor input.
+> • **`--endpoint <url>` (selat-cli 0.16.0+, needs selat-discovery ≥ 0.22.0) pins the
+>   exact endpoint** instead of letting the intent choose it, with `--method <verb>` to
+>   disambiguate a URL listed under several verbs. Use it whenever you have already
+>   surfaced and priced an endpoint — via `selat search` or `selat run --dry-run` — and
+>   now want to pay *that* one. Without it the intent is re-ranked at pay time, and
+>   catalog services are merged across registries (one service id can span unrelated
+>   capabilities), so a reworded intent can resolve to a different endpoint at a
+>   different price. The URL must be in the federated catalog: an unlisted URL is
+>   refused, never paid (`reason: "endpoint-not-in-catalog"`), and a pinned endpoint
+>   that fails the payment-layer reliability check is refused rather than substituted
+>   (`reason: "endpoint-unreliable"`). Neither charges anything.
+> • `selat run … --dry-run --json` plans without paying and returns `exec` —
+>   `{ runner, cmd, argv, env? }`, the resolved spawn tuple the paid run would execute.
+>   Spawn it directly (no shell) to run exactly what was quoted; `command` beside it is
+>   the shell-quoted human display of the same thing, not something to re-parse.
 > • `selat skill run <name>` accepts the skill's params as `--flags` plus three reserved
 >   overrides: `--max-amount <usd>`, `--chain <key>`, `--raw-key`.
 > • `--max-amount` is also the mandatory cost cap on the underlying `selat-pay` engine.
