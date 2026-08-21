@@ -3,4 +3,4 @@
 # automation bumps THIS file after vetting a release, so what installs is exactly
 # what was reviewed (never a floating `latest`). SELAT_CLI_SPEC overrides it.
 # Format: one bare semver on its own line; lines starting with # are comments.
-0.15.22
+0.16.1
