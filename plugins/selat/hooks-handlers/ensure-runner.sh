@@ -49,11 +49,17 @@ SH_HOME="${SELAT_PLUGINS_HOME:-$HOME/.cache/selat-plugins/runtime}"
 # floating `latest` silently drifts (reviewed 0.9.6 vs. shipped 0.15.x → unreviewed
 # code live), so it is never the default. Resolution (done below, after log()):
 #   SELAT_CLI_SPEC override  >  selat-cli.version pin file  >  'latest' (last resort,
-#   only if the pin file is missing/empty — logged loudly). A concrete X.Y.Z pins and
-#   skips the registry check; SELAT_CLI_SPEC=latest opts back into floating.
+#   only if the pin file is missing/empty — logged loudly). The resolved value must
+#   equal the exact CLI version in the reviewed runtime manifest; mismatches fail
+#   closed rather than floating a payment-capable runtime.
 CLI_PKG="@selat-ai/selat-cli"
 SELF_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" 2>/dev/null && pwd || printf '%s' ".")"
 CLI_PIN_FILE="${SELAT_CLI_PIN_FILE:-$SELF_DIR/selat-cli.version}"
+# The reviewed runtime closure: exact CLI + discovery + payment versions and
+# npm integrity hashes. Keep these files in lockstep with selat-cli.version.
+# SessionStart never floats a transitive package below this pin.
+RUNTIME_MANIFEST="$SELF_DIR/selat-runtime-package.json"
+RUNTIME_LOCK="$SELF_DIR/selat-runtime-package-lock.json"
 
 # Where official Node builds are fetched from, and which release line.
 NODE_DIST_BASE="${SELAT_NODE_DIST_BASE:-https://nodejs.org/dist}"
@@ -276,39 +282,36 @@ NPM_BIN="$NODE_BIN_DIR/npm"
 
 mkdir -p "$SH_HOME" "$BIN_DIR" "$CLI_DIR" "$NPM_CACHE"
 
-# --- install / refresh the CLI (throttled) ---
+# --- install / refresh the immutable reviewed runtime ---
 VERSION="$(resolve_cli_version)"
 INSTALLED="$(cat "$INSTALLED_VERSION_FILE" 2>/dev/null || true)"
-# Mirror of selat-cli's package.json "overrides" (keep in sync). npm only honors
-# overrides declared at the ROOT project — selat-cli's own overrides block is
-# silently ignored when it's installed as a dependency, leaving e.g. a vulnerable
-# transitive ws (GHSA-96hv-2xvq-fx4p) in the runtime tree.
-WS_OVERRIDE="8.21.0"
-# An installed ws that predates the pin marks a stale tree. Detect it directly:
-# a leftover package-lock keeps `npm install <pkg>` from reconciling overrides on
-# an already-locked tree, so seeding the manifest alone never heals an existing
-# runtime — the manifest can carry the override while node_modules stays stale.
-WS_PKG="$CLI_DIR/node_modules/ws/package.json"
-STALE_WS=""
-if [ -f "$WS_PKG" ] && ! grep -q "\"version\": \"$WS_OVERRIDE\"" "$WS_PKG"; then STALE_WS=1; fi
-if [ ! -f "$CLI_ENTRY" ] || [ "$INSTALLED" != "$VERSION" ] || [ -n "$STALE_WS" ] \
-   || ! grep -q '"overrides"' "$CLI_DIR/package.json" 2>/dev/null; then
-  # Seed the runtime root manifest (dependency + override) and drop any stale
-  # lockfile, then run a BARE `npm install`: a manifest-driven install re-resolves
-  # the whole tree with the override applied. The `npm install <pkg>@<ver>` "add"
-  # form must NOT be used here — it keeps already-installed transitive deps as-is
-  # and does not reconcile overrides, so a stale ws would survive it (as would a
-  # leftover package-lock, which pins the old resolution even on a bare install).
-  printf '{\n  "dependencies": { "%s": "%s" },\n  "overrides": { "ws": "%s" }\n}\n' \
-    "$CLI_PKG" "$VERSION" "$WS_OVERRIDE" >"$CLI_DIR/package.json"
-  rm -f "$CLI_DIR/package-lock.json"
-  if [ -n "$NPM_BIN" ] && HOME="$SH_HOME" npm_config_cache="$NPM_CACHE" PATH="$NODE_BIN_DIR:$PATH" "$NPM_BIN" install \
-        --prefix "$CLI_DIR" \
+if [ ! -r "$RUNTIME_MANIFEST" ] || [ ! -r "$RUNTIME_LOCK" ]; then
+  fail "SELAT runner unavailable: the plugin is missing its reviewed runtime manifest or lockfile. Reinstall the plugin; do not substitute an unpinned payment runtime."
+fi
+LOCKED_CLI_VERSION="$("$NODE_BIN" -e 'const p=require(process.argv[1]); process.stdout.write(p.dependencies["@selat-ai/selat-cli"] || "")' "$RUNTIME_MANIFEST" 2>/dev/null || true)"
+if [ -z "$LOCKED_CLI_VERSION" ]; then
+  fail "SELAT runner unavailable: the reviewed runtime manifest has no exact selat-cli version. Reinstall the plugin; do not substitute an unpinned payment runtime."
+fi
+# An environment selector may still name the reviewed version, but it cannot
+# silently opt a payment-capable plugin into a different release line.
+if [ "$VERSION" != "$LOCKED_CLI_VERSION" ]; then
+  fail "SELAT runner unavailable: requested selat-cli@$VERSION does not match the plugin's reviewed runtime ($LOCKED_CLI_VERSION). Update the plugin for a coordinated release; do not use an unpinned runtime."
+fi
+# npm ci removes node_modules before installing from the committed lockfile.
+# It verifies npm integrity hashes and --ignore-scripts prevents dependency
+# lifecycle code from running during SessionStart.
+if [ ! -f "$CLI_ENTRY" ] || [ "$INSTALLED" != "$VERSION" ] \
+   || ! cmp -s "$RUNTIME_MANIFEST" "$CLI_DIR/package.json" \
+   || ! cmp -s "$RUNTIME_LOCK" "$CLI_DIR/package-lock.json"; then
+  cp "$RUNTIME_MANIFEST" "$CLI_DIR/package.json"
+  cp "$RUNTIME_LOCK" "$CLI_DIR/package-lock.json"
+  if [ -n "$NPM_BIN" ] && HOME="$SH_HOME" npm_config_cache="$NPM_CACHE" PATH="$NODE_BIN_DIR:$PATH" "$NPM_BIN" ci \
+        --prefix "$CLI_DIR" --ignore-scripts \
         --no-audit --no-fund --loglevel=error >&2 2>&1; then
     printf '%s' "$VERSION" >"$INSTALLED_VERSION_FILE"
-    log "installed $CLI_PKG@$VERSION into $CLI_DIR"
+    log "installed locked SELAT runtime (cli=$VERSION) into $CLI_DIR"
   else
-    log "npm install of $CLI_PKG@$VERSION failed"
+    log "locked SELAT runtime install failed"
   fi
 fi
 
@@ -332,7 +335,7 @@ SHIM_CLI_ENTRY="$(sq "$CLI_ENTRY")"
 cat >"$SHIM_PATH" <<SHIM
 #!/usr/bin/env sh
 # SELAT runner shim (generated by the selat plugin's SessionStart hook).
-exec env npm_config_cache=$SHIM_NPM_CACHE PATH=$SHIM_NODE_DIR:"\$PATH" $SHIM_NODE_BIN $SHIM_CLI_ENTRY "\$@"
+exec env SELAT_PLUGIN_RUNTIME=1 npm_config_cache=$SHIM_NPM_CACHE PATH=$SHIM_NODE_DIR:"\$PATH" $SHIM_NODE_BIN $SHIM_CLI_ENTRY "\$@"
 SHIM
 chmod +x "$SHIM_PATH" 2>/dev/null || true
 
