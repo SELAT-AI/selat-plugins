@@ -48,7 +48,8 @@ selat doctor    # confirm everything is green
 ```
 
 The `AGENTS.md` context tells the agent to lead with free discovery (`selat search`, no wallet) and to
-auto-run `selat init` only when a paid call is needed (the user enters the OTP).
+ask the user and wait before `selat init` when a paid call is needed (the user enters the OTP). Paid
+calls need an armed session budget (`selat budget start`); `selat freeze` is the kill switch.
 
 ## `selat` on PATH in OpenClaw sessions
 

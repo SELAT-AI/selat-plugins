@@ -62,7 +62,7 @@ only through the Circle CLI — it never holds a key share, funds, or login cred
 
 The SessionStart hook **does not create a wallet or move money**. It installs/updates the
 runner, then runs `selat doctor` to check setup. If the wallet/config is missing, it
-tells the agent that **free discovery (`selat search`, `selat skill list`, `selat doctor`) works now with no wallet** — and to **auto-run `selat init` only when the user wants to actually call/pay** for a result (no permission gate; init then installs the Circle CLI and prompts for email + OTP).
+tells the agent that **free discovery (`selat search`, `selat skill list`, `selat doctor`) works now with no wallet** — and to **ask the user and wait** before `selat init`, a Circle OTP, or any spend (do not auto-run init). Paid calls need an armed session budget (`selat budget start`); `selat freeze` is the kill switch.
 Read-only discovery (`selat search`, `selat doctor`, `selat history`, `selat skill list`) is
 auto-approved; anything that spends or moves money (`selat run`, `selat skill run`,
 `selat fund`, `selat setup-policy`) always requires explicit approval.
@@ -148,8 +148,8 @@ Standing-reminder mechanism differs by harness: a **UserPromptSubmit hook** on C
 (its `beforeSubmitPrompt` hook is block-only and can't inject context, so the nudge lives in
 a rule); a **context file** (`GEMINI.md` / `AGENTS.md`) on Gemini / Codex / OpenClaw /
 Antigravity, which have no per-prompt context hook. Runner provisioning is a `sessionStart`
-hook on both Claude Code and Cursor. Discovery is free everywhere (no wallet); the agent auto-runs
-`selat init` only when a paid call is needed — it installs the Circle CLI + drives the wallet login (the user enters the OTP), and funding stays manual.
+hook on both Claude Code and Cursor. Discovery is free everywhere (no wallet); the agent asks and waits
+before `selat init` when a paid call is needed — it installs the Circle CLI + drives the wallet login (the user enters the OTP), and funding stays manual. Paid calls need user approval and an armed session budget.
 
 > **MCP vs this plugin.** Hosted discovery MCP lives at `https://catalog.selat.ai/mcp`
 > (search + quotes; spend stays local). This repo's harness plugins wrap the `selat`

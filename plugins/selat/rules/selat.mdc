@@ -27,10 +27,10 @@ Only when the user actually wants to call/pay for a result:
 
 - `selat run "<intent>"` — discover + pay per use (settles from the user's wallet)
 
-Paying needs a wallet, so `selat init` (interactive Circle login) runs just-in-time
-the first time a paid call is needed. **Never auto-fund or auto-pay** — funding and
-any spend require the user's explicit approval. Never paste a private key or
-improvise auth.
+Paying needs a wallet. **Ask the user and wait** before `selat init`, a Circle OTP,
+or any spend — do not auto-run init. Paid calls need the user's explicit approval
+**and an armed session budget** (`selat budget start`); `selat freeze` is the kill
+switch. **Never auto-fund or auto-pay.** Never paste a private key or improvise auth.
 
 ## Talking to the user
 

@@ -109,11 +109,13 @@ selat doctor
 
 ---
 
-## 3. The wallet login (auto-run init *when a paid call is needed*; the human enters the OTP)
+## 3. The wallet login (ask + wait before init; the human enters the OTP)
 
 **Discovery is free and needs no wallet** — `selat search`, `selat skill list`, and `selat doctor`
 work immediately; lead with those. **Only when the user wants to actually call/pay** for a result do
-you set up the wallet: **run `selat init` automatically then — no permission gate.** Inside it, init
+you set up the wallet: **ask the user and wait** before `selat init`, a Circle OTP, or any spend.
+Do not auto-run `selat init`. Paid calls need an armed session budget (`selat budget start`);
+`selat freeze` is the kill switch. After they agree, init
 installs the Circle CLI, then drives the Circle CLI's interactive login:
 
 ```bash
@@ -145,7 +147,7 @@ selat search "<what you need>"   # FREE discovery — rank endpoints for a capab
 selat history                    # locally recorded Gateway micropayments
 ```
 
-Then a real task (this **pays** from the human's Gateway balance — confirm first, start small/cheap):
+Then a real task (this **pays** from the human's Gateway balance — confirm first, arm a session budget with `selat budget start`, start small/cheap; `selat freeze` is the kill switch):
 ```bash
 selat run "<what you need>"   # discover + rank + pay for an x402/MPP service in one pipe
 ```
