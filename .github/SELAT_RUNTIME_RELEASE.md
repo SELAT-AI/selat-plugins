@@ -7,6 +7,7 @@ The SELAT plugin installs a **reviewed runtime closure**, not a floating CLI pac
 | `plugins/selat/hooks-handlers/selat-cli.version` | Exact CLI version accepted by the SessionStart installer. |
 | `plugins/selat/hooks-handlers/selat-runtime-package.json` | Exact direct CLI, discovery, and payment component versions plus the `ws` override. |
 | `plugins/selat/hooks-handlers/selat-runtime-package-lock.json` | Exact transitive dependency graph and npm integrity metadata. |
+| `plugins/selat-hermes/selat-cli.version` (and matching manifest/lock) | Byte-identical vendored copies so the Hermes subdirectory install has the same reviewed closure. |
 
 > Do not edit the lockfile by hand and do not update only `selat-cli.version`. A new runtime must be regenerated as one coordinated change.
 
@@ -14,7 +15,7 @@ The SELAT plugin installs a **reviewed runtime closure**, not a floating CLI pac
 
 After publishing and validating compatible releases of `@selat-ai/selat-cli`, `@selat-ai/selat-discovery`, and `@selat-ai/selat-pay`, run **Prepare coordinated SELAT runtime release** from the Actions tab. Supply the three exact published versions. The workflow regenerates the manifest/lockfile, validates the closure, and opens a pull request. It does not merge or publish automatically.
 
-The workflow validates that each direct dependency has an exact SemVer version, each corresponding lock entry has a registry URL and integrity hash, the CLI pin agrees with the manifest, `ws` remains locked to `8.21.0`, and the SessionStart installer uses `npm ci --ignore-scripts` against the committed artifacts.
+The workflow validates that each direct dependency has an exact SemVer version, each corresponding lock entry has a registry URL and integrity hash, the CLI pin agrees with the manifest, `ws` remains locked to `8.21.0`, the SessionStart installer uses `npm ci --ignore-scripts` against the committed artifacts, and the Hermes plugin ships an identical vendored copy (it must not fall back to npm `latest`).
 
 ## Local release preparation
 

@@ -3,8 +3,10 @@
 How to install SELAT in the Claude Code CLI.
 
 > Marketplace repo: **[`SELAT-AI/selat-plugins`](https://github.com/SELAT-AI/selat-plugins)**
-> (public). The `claude plugin marketplace add` flow below is verified end-to-end. Or
-> install the runner directly: `npm i -g @selat-ai/selat-cli` then `selat init`.
+> (public). The `claude plugin marketplace add` flow below is verified end-to-end. Prefer
+> the plugin install — SessionStart provisions the reviewed (pin + lock) runner with
+> `npm ci --ignore-scripts`. Do not install `@selat-ai/selat-cli@latest` as the plugin
+> payment path. No-plugin setups: [generic.md](generic.md).
 
 ## Install
 
@@ -44,6 +46,10 @@ runs read-only discovery; any paid call asks for your approval first.
 
 ## Staying up to date
 
-- The SELAT runner (`@selat-ai/selat-cli`) is checked at the start of each session and
-  updated when a newer version is published.
-- Pin a version with `SELAT_CLI_SPEC=0.8.0` in your environment.
+- SessionStart installs the **reviewed runtime closure** committed in the plugin
+  (`selat-cli.version` + `selat-runtime-package.json` + lock) with `npm ci --ignore-scripts`
+  into `~/.cache/selat-plugins/runtime`. It does not resolve npm `latest` each session.
+- A new runner reaches you when you update the **plugin bundle** (which ships a new pin +
+  lock), then start a new session.
+- `SELAT_CLI_SPEC` may name that same reviewed version; a mismatch with the lock fail-closes.
+  Unsetting it does not "track latest" — the plugin path has no latest track.

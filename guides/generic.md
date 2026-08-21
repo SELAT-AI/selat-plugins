@@ -1,13 +1,21 @@
 # SELAT for any agent (no plugin support)
 
 If your harness has no plugin/extension system, you can still use SELAT — the runner is
-just an npm package, and the SessionStart hook script doubles as a standalone installer.
+just an npm package. Prefer a [plugin install](../README.md#install-per-harness) on a
+supported harness: that path uses the reviewed pin + lock and `npm ci --ignore-scripts`.
+This page is the no-plugin fallback only.
 
 ## Install the runner
 
+Install the **pinned** CLI (the same version the plugin lock reviews). Do **not** install
+`@latest` as a payment runner:
+
 ```bash
-npm i -g @selat-ai/selat-cli
+npm i -g @selat-ai/selat-cli@0.16.4 --ignore-scripts
 ```
+
+The exact pin lives in `plugins/selat/hooks-handlers/selat-cli.version`. If that file
+names a newer reviewed release, use that version instead of copying an old number.
 
 This single package bundles everything: the `selat` runner, the `@selat-ai/selat-discovery`
 skill, and the `@selat-ai/selat-pay` pay engine.

@@ -33,8 +33,11 @@ codex plugin add selat@selat-plugins
 
 ### Gemini CLI
 ```bash
-gemini extensions install https://github.com/SELAT-AI/selat-plugins --auto-update
+gemini extensions install https://github.com/SELAT-AI/selat-plugins
 ```
+Gemini has **no spend hook and no locked runner**. `--auto-update` is optional and is not
+a substitute for the reviewed pin + lock used on Claude Code / Cursor / OpenClaw / Hermes.
+See [guides/gemini-cli.md](guides/gemini-cli.md).
 
 ### OpenClaw
 ```bash
@@ -70,9 +73,14 @@ Gateway + chain RPCs — extend `allow` then, or set `"default": "allow"` to ski
 > the sandbox.
 
 ### Any other harness / no plugin system  (also covers Antigravity)
+Prefer a plugin install above when your harness supports one — that path uses the
+reviewed pin + lock and `npm ci --ignore-scripts`. If there is no plugin, install the
+**pinned** CLI (not `@latest`):
 ```bash
-npm i -g @selat-ai/selat-cli
+npm i -g @selat-ai/selat-cli@0.16.4 --ignore-scripts
 ```
+The exact pin is `plugins/selat/hooks-handlers/selat-cli.version`. See
+[guides/generic.md](guides/generic.md).
 The skill + context files (`AGENTS.md` / `GEMINI.md`) are picked up by harnesses that read them;
 everything still runs through the `selat` binary.
 
@@ -80,7 +88,9 @@ Verify the binary resolves:
 ```bash
 selat --version
 ```
-_(No `curl | bash` installer is published yet — use `npm i -g` above; do not invent an install.sh URL.)_
+_(No `curl | bash` installer is published yet — use the pinned `npm i -g` above or a
+plugin installer; do not invent an install.sh URL, and do not install `@latest` as the
+payment runner.)_
 
 ---
 
@@ -151,7 +161,13 @@ There are **two layers**, and they update on different channels:
 
 ### The runner (`@selat-ai/selat-cli` — the `selat` binary + discovery skill + pay engine)
 
-**On harnesses where the SessionStart hook runs (Claude Code, Cursor, OpenClaw): do nothing — start a new session.** Each session, the hook resolves `@selat-ai/selat-cli@latest` against the npm registry, compares it to the version recorded in `~/.cache/selat-plugins/runtime/cli/.installed-version`, and reinstalls the runner into the plugin-owned runtime when they differ. A new runner release reaches every install automatically on its next session start — and because the CLI bundles `@selat-ai/selat-discovery` and `@selat-ai/selat-pay` as dependencies, one runner refresh updates all three.
+**On harnesses where the SessionStart hook runs (Claude Code, Cursor, OpenClaw): do nothing until you update the plugin bundle.** Each session, the hook installs the **reviewed runtime closure** committed in the plugin:
+
+- pin file `plugins/selat/hooks-handlers/selat-cli.version`
+- manifest `selat-runtime-package.json` (exact CLI + discovery + pay versions)
+- lockfile `selat-runtime-package-lock.json` (transitive graph + npm integrity)
+
+into the plugin-owned prefix `~/.cache/selat-plugins/runtime` with `npm ci --ignore-scripts`. It does **not** resolve `@selat-ai/selat-cli@latest`, does not re-pull a floating dist-tag each session, and fail-closes if the pin is missing or does not match the lock. A new runner reaches every install when you **update the plugin** (which ships a new pin + lock) and start a new session.
 
 Confirm what you're on:
 
@@ -159,19 +175,19 @@ Confirm what you're on:
 selat --version
 ```
 
-(A session that was already open when a release shipped keeps its old runner until the next session start.)
+(A session that was already open when a plugin update shipped keeps its old runner until the next session start.)
 
-**Force a refresh without waiting** — clear the version marker, then start a new session:
+**Re-install the same reviewed lock** (corruption recovery, not a way to float newer npm) — clear the version marker, then start a new session:
 
 ```bash
 rm ~/.cache/selat-plugins/runtime/cli/.installed-version
 ```
 
-**Pinned installs don't auto-update — by design.** If you've exported `SELAT_CLI_SPEC=<x.y.z>`, a concrete version skips the registry check entirely; bump the pin (or unset it to go back to tracking `latest`).
+**There is no "track latest" on the plugin path.** `SELAT_CLI_SPEC` may name the reviewed version already in the pin/lock; a mismatch fail-closes. Unsetting it does not float `latest`.
 
-**Offline sessions degrade gracefully.** If the registry is unreachable, the hook falls back to the last resolved version and the installed runner keeps working; it catches up on the next session with network.
+**Offline sessions degrade gracefully.** If the registry is unreachable on first install, the hook fail-closes rather than substituting an unpinned runtime. After a successful `npm ci`, the installed tree keeps working offline.
 
-> `npm i -g @selat-ai/selat-cli@latest` updates a **standalone global install**, not the plugin's runtime — the plugin's `selat` shim points at `~/.cache/selat-plugins/runtime`, which only the hook (or the marker removal above) refreshes. If you have both installed, `selat --version` reports whichever resolves first on your PATH.
+> A standalone `npm i -g @selat-ai/selat-cli@<pin>` updates a **global install**, not the plugin's runtime — the plugin's `selat` shim points at `~/.cache/selat-plugins/runtime`. Do not install `@latest` as a payment runner. If you have both installed, prefer the plugin shim (`$SELAT_RUNNER` / `~/.cache/selat-plugins/runtime/bin/selat`); a random `selat` earlier on PATH is not the reviewed payment runner.
 
 ### The plugin bundle (this repo — hooks, guides, the driver skill, manifests)
 
@@ -182,16 +198,16 @@ This updates through **your harness's plugin manager**, and the cadence varies b
 | Claude Code | `/plugin marketplace update SELAT-AI/selat-plugins` (refreshes the marketplace; re-install if prompted) |
 | Codex | re-run the marketplace add/install, or your Codex plugin-update command |
 | Cursor | Customize → Marketplace → update `selat` (or reinstall) |
-| Gemini CLI | already auto-updates via `--auto-update` at install time |
+| Gemini CLI | no locked runner; update the extension through Gemini's own tools if you want context changes. `--auto-update` is optional and is not a substitute for the reviewed closure |
 | **OpenClaw** | **`openclaw plugins update selat`** (or `openclaw plugins update --all`) — **OpenClaw has no auto-update; the bundle only refreshes when you run this.** |
-| Hermes | `hermes plugins install SELAT-AI/selat-plugins/plugins/selat-hermes --force --enable` (subdirectory installs carry no `.git`, so `hermes plugins update` can't pull them; force-reinstall instead) |
+| Hermes | `hermes plugins install SELAT-AI/selat-plugins/plugins/selat-hermes --force --enable` (subdirectory installs carry no `.git`, so `hermes plugins update` can't pull them; force-reinstall instead). The Hermes plugin vendors the same pin + lock and fail-closes if they are missing |
 
 > **OpenClaw note.** Because OpenClaw never auto-updates a bundle, a fix that lives in the plugin hook
 > (e.g. a PATH or sandbox change) won't reach an existing install until you run `openclaw plugins update
-> selat`. Runner-side fixes still arrive automatically (the hook pulls the latest `selat-cli` each
-> session). Run `selat doctor` after updating to confirm.
+> selat`. Runner-side fixes arrive when that bundle update ships a new pin + lock and you start a new
+> session — SessionStart does **not** pull npm `latest` each session. Run `selat doctor` after updating to confirm.
 
-**Which layer do you need?** Runner behavior (`selat` commands, discovery, payment) ships in the npm package and arrives automatically. Only changes to the plugin wiring itself — hooks, auto-approve policy, the bundled driver skill, per-harness manifests — need a bundle update. A stale bundle with a fresh runner is the normal, working state between plugin releases.
+**Which layer do you need?** Runner behavior (`selat` commands, discovery, payment) ships in the npm package and reaches plugin users through the reviewed lock in the bundle. Only changes to the plugin wiring itself — hooks, auto-approve policy, the bundled driver skill, per-harness manifests — plus a new pin/lock need a bundle update.
 
 ---
 

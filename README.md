@@ -11,12 +11,17 @@ Copy this into your coding agent (Claude Code, Codex, Cursor, Gemini CLI, …) a
 
 > Help me set up SELAT — it lets you find and pay for tools you don't have built in (image/video/audio generation, web scraping, live and on-chain data), paid from my own crypto wallet that I control. Read github.com/SELAT-AI/selat-plugins and follow the setup for your harness. Don't create or fund a wallet for me — guide me and I'll approve it.
 
-Prefer to do it yourself? See [**Install per harness**](#install-per-harness) below, or just run `npm i -g @selat-ai/selat-cli` then `selat init`. Agents: the step-by-step runbook is [**install.md**](install.md).
+Prefer to do it yourself? See [**Install per harness**](#install-per-harness) below.
+On a supported harness, use the plugin installer (reviewed pin + lock, `npm ci --ignore-scripts`).
+The no-plugin fallback is the **pinned** CLI in [guides/generic.md](guides/generic.md)
+(`@selat-ai/selat-cli@0.16.4 --ignore-scripts` — not `@latest`). Agents: the step-by-step
+runbook is [**install.md**](install.md).
 
 > **Marketplace repo: [`SELAT-AI/selat-plugins`](https://github.com/SELAT-AI/selat-plugins)** —
 > the third SELAT distribution surface (after the npm package and the published skill).
-> Prefer the plugin install below. Or install the runner directly with
-> `npm i -g @selat-ai/selat-cli` and run `selat init`.
+> Prefer the plugin install below (reviewed pin + lock). The no-plugin fallback is
+> [guides/generic.md](guides/generic.md): `npm i -g @selat-ai/selat-cli@0.16.4 --ignore-scripts`
+> then `selat init`. Do not install `@latest` as the payment path.
 
 ## What this is
 
@@ -28,8 +33,9 @@ CLI package bundles everything in one install:
 - `@selat-ai/selat-discovery` — the discovery skill (the published source of truth)
 - `@selat-ai/selat-pay` — the pay engine (Circle MPC signing + x402 batching)
 
-So `npm i -g @selat-ai/selat-cli` = runner + skill + pay. This repo adds the thin plugin
-layer (manifests, hooks, a driver skill, per-harness guides) that auto-installs and
+So installing the pinned `@selat-ai/selat-cli` package = runner + skill + pay. This repo adds the thin plugin
+layer (manifests, hooks, a driver skill, per-harness guides) that auto-installs the
+**reviewed runtime closure** (pin file + lock, `npm ci --ignore-scripts`) and
 wires that runner into each host.
 
 ## How SELAT differs from a flat capability index
@@ -70,10 +76,10 @@ auto-approved; anything that spends or moves money (`selat run`, `selat skill ru
 | Claude Code | [guides/claude-code.md](guides/claude-code.md) | `/plugin marketplace add SELAT-AI/selat-plugins` then `/plugin install selat@selat-plugins` |
 | Codex | [guides/codex.md](guides/codex.md) | `codex plugin marketplace add SELAT-AI/selat-plugins` then `codex plugin add selat@selat-plugins` |
 | Cursor | [guides/cursor.md](guides/cursor.md) | Customize → Marketplace (or paste the prompt above). **Then allowlist SELAT in `.cursor/sandbox.json`** — see the guide |
-| Gemini CLI | [guides/gemini-cli.md](guides/gemini-cli.md) | `gemini extensions install https://github.com/SELAT-AI/selat-plugins --auto-update` |
+| Gemini CLI | [guides/gemini-cli.md](guides/gemini-cli.md) | `gemini extensions install https://github.com/SELAT-AI/selat-plugins` (no spend hook, no locked runner; `--auto-update` is not the default) |
 | OpenClaw | [guides/openclaw.md](guides/openclaw.md) | `openclaw plugins install selat --marketplace https://github.com/SELAT-AI/selat-plugins` (bundle auto-detect) |
-| Hermes Agent | [guides/hermes.md](guides/hermes.md) | `hermes plugins install SELAT-AI/selat-plugins/plugins/selat-hermes --enable` — the subdirectory path is required (the bare repo form buries the plugin at `plugins/selat-plugins/plugins/selat-hermes/`; see the guide). The plugin installs the `selat-cli` runner |
-| Any other / none | [guides/generic.md](guides/generic.md) | `npm i -g @selat-ai/selat-cli` then `selat init` |
+| Hermes Agent | [guides/hermes.md](guides/hermes.md) | `hermes plugins install SELAT-AI/selat-plugins/plugins/selat-hermes --enable` — the subdirectory path is required (the bare repo form buries the plugin at `plugins/selat-plugins/plugins/selat-hermes/`; see the guide). The plugin vendors the pin + lock and installs the reviewed runner |
+| Any other / none | [guides/generic.md](guides/generic.md) | `npm i -g @selat-ai/selat-cli@0.16.4 --ignore-scripts` then `selat init` (not `@latest`) |
 
 After install, every harness runs the same first-time setup (self-custody):
 
@@ -103,7 +109,7 @@ plugins/
       hooks-cursor.json              # Cursor: sessionStart, beforeShellExecution(matcher: selat)
     hooks-handlers/                  # scripts (Anthropic convention: wiring in hooks/, scripts here)
       ensure-runner.sh               # SessionStart: DETECT + GUIDE (never auto-creates a wallet); installs
-                                     #   the version-pinned runner; shell-rc PATH edit is opt-in (SELAT_PATH_AUTOADD=1)
+                                     #   the reviewed pin+lock via npm ci --ignore-scripts; shell-rc PATH edit is opt-in
       selat-context.sh               # Claude UserPromptSubmit availability reminder (cat <<'EOF' heredoc)
       auto-approve-selat.sh          # Claude PreToolUse: auto-approve BARE READ-ONLY selat only (thin wrapper)
       auto-approve-selat-cursor.sh   # Cursor beforeShellExecution: same policy, Cursor permission schema
@@ -111,6 +117,8 @@ plugins/
       lib/
         classify-selat.sh            # shared decode + classify core for both auto-approve hooks (fail-closed)
       selat-cli.version              # pinned @selat-ai/selat-cli version — source of truth for what installs
+      selat-runtime-package.json     # reviewed CLI + discovery + pay versions
+      selat-runtime-package-lock.json
       check-approve.sh               # regression harness asserting the auto-approve classifier verdicts
       run-hook.cmd                   # polyglot Windows/Unix wrapper (cross-OS hook support)
     skills/
@@ -120,13 +128,19 @@ plugins/
     GEMINI.md                        # Gemini standing context (replaces a prompt hook)
   selat-hermes/
     plugin.yaml                      # Hermes plugin manifest
-    __init__.py                      # register() installs the @selat-ai/selat-cli runner
+    __init__.py                      # register() installs the reviewed runtime (fail-closed if pin/lock missing)
     after-install.md                 # post-install note shown after the plugin is enabled
+    selat-cli.version              # vendored pin for the subdirectory install
+    selat-runtime-package.json     # vendored reviewed manifest
+    selat-runtime-package-lock.json
 guides/
   claude-code.md  codex.md  cursor.md  gemini-cli.md  openclaw.md  hermes.md  generic.md
 .github/
-  workflows/sync-selat-cli-version.yml   # polls npm; opens a PR to bump the runner pin + doc markers
-  scripts/sync-selat-cli-version.sh      # the rewrite the workflow runs (pin file + version markers)
+  workflows/sync-selat-cli-version.yml   # coordinated runtime release (manual): regenerates pin + lock, opens a review PR
+  workflows/validate-selat-runtime-lock.yml
+  scripts/regenerate-selat-runtime-lock.sh
+  scripts/validate-selat-runtime-lock.sh
+  SELAT_RUNTIME_RELEASE.md
 ```
 
 Standing-reminder mechanism differs by harness: a **UserPromptSubmit hook** on Claude Code
