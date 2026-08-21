@@ -43,5 +43,6 @@ guardrails. If your harness supports it, you can also copy
 `plugins/selat/skills/selat-discovery/SKILL.md` from this repo into your agent's skills
 directory.
 
-> Note: there is **no SELAT MCP connector** today, so there's nothing to add to an MCP
-> config.
+> Note: this install path wraps the `selat` CLI — nothing to add to an MCP config here.
+> Hosted discovery MCP lives at `https://catalog.selat.ai/mcp` (search + quotes; spend
+> stays local). This repo does not ship `.mcp.json` or an `mcpServers` block.

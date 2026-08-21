@@ -137,5 +137,6 @@ Antigravity, which have no per-prompt context hook. Runner provisioning is a `se
 hook on both Claude Code and Cursor. Discovery is free everywhere (no wallet); the agent auto-runs
 `selat init` only when a paid call is needed — it installs the Circle CLI + drives the wallet login (the user enters the OTP), and funding stays manual.
 
-> **No MCP connector.** SELAT has no MCP server today, so there is no `.mcp.json` and no
-> `mcpServers` block anywhere in this repo.
+> **MCP vs this plugin.** Hosted discovery MCP lives at `https://catalog.selat.ai/mcp`
+> (search + quotes; spend stays local). This repo's harness plugins wrap the `selat`
+> CLI and do not ship `.mcp.json` or an `mcpServers` block.
