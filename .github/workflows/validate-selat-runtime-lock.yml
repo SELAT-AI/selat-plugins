@@ -1,0 +1,55 @@
+name: Validate SELAT runtime lock
+
+# Block changes that would make the plugin's reviewed CLI/discovery/payment
+# runtime non-reproducible or inconsistent with its SessionStart installer.
+
+on:
+  pull_request:
+    paths:
+      - 'plugins/selat/hooks-handlers/ensure-runner.sh'
+      - 'plugins/selat/hooks-handlers/selat-cli.version'
+      - 'plugins/selat/hooks-handlers/selat-runtime-package.json'
+      - 'plugins/selat/hooks-handlers/selat-runtime-package-lock.json'
+      - '.github/scripts/regenerate-selat-runtime-lock.sh'
+      - '.github/scripts/validate-selat-runtime-lock.sh'
+      - '.github/workflows/validate-selat-runtime-lock.yml'
+      - '.github/workflows/sync-selat-cli-version.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'plugins/selat/hooks-handlers/ensure-runner.sh'
+      - 'plugins/selat/hooks-handlers/selat-cli.version'
+      - 'plugins/selat/hooks-handlers/selat-runtime-package.json'
+      - 'plugins/selat/hooks-handlers/selat-runtime-package-lock.json'
+      - '.github/scripts/regenerate-selat-runtime-lock.sh'
+      - '.github/scripts/validate-selat-runtime-lock.sh'
+      - '.github/workflows/validate-selat-runtime-lock.yml'
+      - '.github/workflows/sync-selat-cli-version.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: validate-selat-runtime-lock-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  runtime-lock:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 2
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Validate runtime manifest, lockfile, and installer contract
+        run: .github/scripts/validate-selat-runtime-lock.sh
+
+      - name: Reject malformed repository changes
+        run: git diff --check HEAD^ HEAD
