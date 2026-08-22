@@ -46,6 +46,19 @@ openclaw plugins install selat --marketplace https://github.com/SELAT-AI/selat-p
 OpenClaw auto-detects the bundle layout (`.claude-plugin/` + skill + `AGENTS.md`); no native
 manifest.
 
+### Grok Build
+Once listed in the xAI catalog: `/marketplace` or `grok plugin install selat --trust`.
+Before the catalog merge (GitHub shorthand is documented):
+```bash
+grok plugin marketplace add SELAT-AI/selat-plugins
+grok plugin install selat --trust
+# or direct nested install:
+grok plugin install SELAT-AI/selat-plugins#plugins/selat --trust
+```
+`--trust` is required for SessionStart to provision the reviewed runner (pin + lock,
+`npm ci --ignore-scripts`). This is **not yet a live paying harness**. Full guide:
+[guides/grok-build.md](guides/grok-build.md).
+
 ### Cursor
 Install from the **Customize** panel (sidebar → Customize → Marketplace, or search by keyword);
 Cursor has no `cursor plugin add` CLI. Community plugins also live at cursor.directory. Full
