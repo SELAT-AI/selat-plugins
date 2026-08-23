@@ -7,7 +7,7 @@
 # holds the user's funding balance. A Circle Agent Wallet is real onboarding — so unlike
 # a custodial runner, this hook must NOT silently create a wallet or move funds. It:
 #   1. ensures the runner (@selat-ai/selat-cli) is available — installing it via npm if
-#      missing, the same model Zero uses for its CLI;
+#      missing;
 #   2. puts `selat` on PATH for the session (where the host supports an env file);
 #   3. runs `selat doctor` to inspect install / Circle auth / Agent Wallet / config; and
 #   4. emits a SessionStart additionalContext that tells the AGENT what to do:

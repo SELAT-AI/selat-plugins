@@ -89,10 +89,3 @@ selat doctor                   # confirm everything is green
 `selat init` walks you through connecting your **own** Circle Agent Wallet (interactive OTP
 via the Circle CLI). The agent never creates or funds a wallet on your behalf — it guides;
 you authorize any spend.
-
-## Not yet verified on a live Cursor
-
-- That a plugin hook `command` accepts an argument (`run-hook.cmd <script>`) and runs from the
-  plugin root.
-- That `beforeShellExecution` with `matcher: "selat"` fires and honors the `{"permission":"allow"}`
-  response.

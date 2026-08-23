@@ -19,7 +19,7 @@ any spend.
 
 Pick the section for the harness you are. If unsure or unlisted, use **Any other harness**.
 
-### Claude Code  ✅ verified
+### Claude Code
 ```bash
 claude plugin marketplace add SELAT-AI/selat-plugins
 claude plugin install selat@selat-plugins
@@ -56,7 +56,7 @@ grok plugin install selat --trust
 grok plugin install SELAT-AI/selat-plugins#plugins/selat --trust
 ```
 `--trust` is required for SessionStart to provision the reviewed runner (pin + lock,
-`npm ci --ignore-scripts`). This is **not yet a live paying harness**. Full guide:
+`npm ci --ignore-scripts`). Full guide:
 [guides/grok-build.md](guides/grok-build.md).
 
 ### Cursor
@@ -90,7 +90,7 @@ Prefer a plugin install above when your harness supports one — that path uses 
 reviewed pin + lock and `npm ci --ignore-scripts`. If there is no plugin, install the
 **pinned** CLI (not `@latest`):
 ```bash
-npm i -g @selat-ai/selat-cli@0.16.4 --ignore-scripts
+npm i -g @selat-ai/selat-cli@0.16.8 --ignore-scripts
 ```
 The exact pin is `plugins/selat/hooks-handlers/selat-cli.version`. See
 [guides/generic.md](guides/generic.md).

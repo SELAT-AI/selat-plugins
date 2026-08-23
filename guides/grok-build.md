@@ -21,9 +21,10 @@ It wraps the published `@selat-ai/selat-cli` runner (which bundles `@selat-ai/se
   only **read-only** selat commands (`search`, `skill list`, `doctor`, `history`);
   `run` / `init` / `skill run` and anything that spends stay manual.
 
-Grok loads `.grok-plugin/plugin.json` (or `.claude-plugin/plugin.json`) from the plugin
-root and discovers `skills/` + `hooks/hooks.json` by convention. Hook commands that use
-`${CLAUDE_PLUGIN_ROOT}` are substituted the same as `${GROK_PLUGIN_ROOT}`.
+Grok reads Claude Code plugins natively, so it loads `.claude-plugin/plugin.json` from the
+plugin root and discovers `skills/` + `hooks/hooks.json` by convention — there is no
+separate Grok manifest to maintain. Hook commands that use `${CLAUDE_PLUGIN_ROOT}` are
+substituted the same as `${GROK_PLUGIN_ROOT}`.
 
 ## Install
 
@@ -68,10 +69,10 @@ grok plugin install SELAT-AI/selat-plugins#plugins/selat --trust
 
 The bare `grok plugin install SELAT-AI/selat-plugins --trust` shorthand is accepted
 syntax (Grok expands `owner/repo` to a GitHub clone). It treats the **repo root** as
-the plugin root. This marketplace does not put `.grok-plugin/plugin.json` or `skills/`
-at the repo root — use the marketplace-add path or the `#plugins/selat` form above.
+the plugin root. This marketplace does not put a plugin manifest or `skills/` at the repo
+root — use the marketplace-add path or the `#plugins/selat` form above.
 
-Local dry path (this checkout):
+Local install (this checkout):
 
 ```bash
 grok plugin install ./plugins/selat --trust
@@ -108,10 +109,8 @@ you authorize any spend. Paid calls need an armed session budget (`selat budget 
 - `SELAT_CLI_SPEC` may name that same reviewed version; a mismatch with the lock fail-closes.
   Unsetting it does not "track latest" — the plugin path has no latest track.
 
-## Not yet a live paying harness
+## If the plugin path is unavailable
 
-File layout and Grok's documented install forms are enough to load the skill and to
-point SessionStart at the reviewed runner. This path has **not** been proven on a live
-Grok Build session that completed a paid `selat run`. If `/marketplace` or the CLI
-differs from the docs above, use the pinned no-plugin install in [generic.md](generic.md)
-(`@selat-ai/selat-cli` at the reviewed pin, `--ignore-scripts` — not `@latest`).
+If `/marketplace` or the CLI differs from the forms above, use the pinned no-plugin
+install in [generic.md](generic.md) (`@selat-ai/selat-cli` at the reviewed pin,
+`--ignore-scripts` — not `@latest`).
