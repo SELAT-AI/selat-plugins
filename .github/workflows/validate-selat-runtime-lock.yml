@@ -19,6 +19,9 @@ on:
       - '.github/scripts/validate-selat-runtime-lock.sh'
       - '.github/workflows/validate-selat-runtime-lock.yml'
       - '.github/workflows/sync-selat-cli-version.yml'
+      - 'README.md'
+      - 'install.md'
+      - 'guides/**'
   push:
     branches:
       - main
@@ -36,6 +39,9 @@ on:
       - '.github/scripts/validate-selat-runtime-lock.sh'
       - '.github/workflows/validate-selat-runtime-lock.yml'
       - '.github/workflows/sync-selat-cli-version.yml'
+      - 'README.md'
+      - 'install.md'
+      - 'guides/**'
   workflow_dispatch:
 
 permissions:
