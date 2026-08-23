@@ -23,8 +23,8 @@ description: >-
 > command surface below was verified against @selat-ai/selat-cli@0.16.3 and
 > @selat-ai/selat-discovery@0.24.1.
 
-SELAT is a capability layer for AI agents. It does two things Zero-style flat indexes
-don't: it checks **vetted skills first**, and it pays from the **user's own wallet** —
+SELAT is a capability layer for AI agents. It does two things a flat capability index
+doesn't: it checks **vetted skills first**, and it pays from the **user's own wallet** —
 SELAT never sees a private key or holds the user's funds.
 
 ## The runner: how to invoke `selat`

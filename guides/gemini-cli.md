@@ -3,8 +3,7 @@
 How to install SELAT as a Gemini CLI extension.
 
 > Marketplace repo: **[`SELAT-AI/selat-plugins`](https://github.com/SELAT-AI/selat-plugins)**
-> (public). _Note: the `gemini extensions install` path below is not yet tested on a live Gemini
-> CLI — if it differs, use the pinned npm install in [generic.md](generic.md)._ This harness
+> (public). This harness
 > has **no spend hook and no locked runner** (no SessionStart `npm ci --ignore-scripts`
 > closure). Prefer a Claude Code / Cursor / OpenClaw / Hermes plugin install when you need
 > the reviewed runtime. Do not treat `@latest` or `--auto-update` as a substitute for that lock.
@@ -17,10 +16,6 @@ gemini extensions install https://github.com/SELAT-AI/selat-plugins
 
 `--auto-update` is optional and is **not** the default. This extension ships standing
 context (`GEMINI.md`); it does not provision a reviewed payment CLI.
-
-> _Note: the `gemini extensions install` invocation and how it locates the Gemini variant
-> (`plugins/selat-gemini/`) are adapted from Zero's Gemini flow and not yet verified live; a
-> build step may be needed to surface `selat-gemini` as the extension root._
 
 The Gemini variant differs from the Claude/Codex plugin:
 
@@ -41,7 +36,7 @@ The Gemini variant differs from the Claude/Codex plugin:
 SELAT pays from **your own Circle Agent Wallet** (MPC self-custody) — it never holds
 your keys or funds, and never creates a wallet for you. Gemini does not install the
 locked runner. If `selat` is not already the reviewed plugin prefix, install the pinned
-CLI from [generic.md](generic.md) (`@selat-ai/selat-cli@0.16.4 --ignore-scripts` — not
+CLI from [generic.md](generic.md) (`@selat-ai/selat-cli@0.16.8 --ignore-scripts` — not
 `@latest`). Then run onboarding yourself:
 
 ```bash

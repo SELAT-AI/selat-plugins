@@ -130,6 +130,26 @@ if grep -Eq 'npm install -g|npm i -g' "$HERMES_INSTALLER"; then
   exit 5
 fi
 
+# The no-plugin fallback documented for humans and agents must name the same
+# reviewed pin the hooks install. Docs that hand out a superseded version quietly
+# undercut the "install the reviewed pin, never @latest" contract, so treat that
+# drift as a release-blocking error rather than a stale comment.
+DOC_DRIFT=0
+for doc in "$ROOT/README.md" "$ROOT/install.md" "$ROOT"/guides/*.md; do
+  [ -f "$doc" ] || continue
+  while IFS= read -r reference; do
+    [ -n "$reference" ] || continue
+    doc_version="${reference##*@}"
+    [ "$doc_version" = "$PIN_VERSION" ] && continue
+    echo "error: ${doc#"$ROOT"/} documents @selat-ai/selat-cli@$doc_version but the reviewed pin is $PIN_VERSION" >&2
+    DOC_DRIFT=1
+  done < <(grep -oE '@selat-ai/selat-cli@[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z][0-9A-Za-z.-]*)?(\+[0-9A-Za-z][0-9A-Za-z.-]*)?' "$doc" || true)
+done
+[ "$DOC_DRIFT" -eq 0 ] || {
+  echo "error: run .github/scripts/regenerate-selat-runtime-lock.sh to resync documented pins" >&2
+  exit 5
+}
+
 printf 'SELAT runtime lock valid: cli=%s discovery=%s pay=%s ws=8.21.0\n' \
   "$PIN_VERSION" \
   "$(node -p "require('$MANIFEST').dependencies['@selat-ai/selat-discovery']")" \

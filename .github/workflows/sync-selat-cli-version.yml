@@ -71,10 +71,12 @@ jobs:
             | `@selat-ai/selat-pay` | `${{ inputs.pay_version }}` |
 
             The workflow regenerated `selat-runtime-package.json` and its npm lockfile
-            with lifecycle scripts disabled, then validated direct versions, npm
-            integrity metadata, the `ws@8.21.0` override, the SessionStart
-            installer's `npm ci --ignore-scripts` contract, and byte-identical
-            vendored copies in `plugins/selat-hermes/` (subdirectory install).
+            with lifecycle scripts disabled, resynced the documented no-plugin pin in
+            `README.md`, `install.md`, and `guides/*.md`, then validated direct versions,
+            npm integrity metadata, the `ws@8.21.0` override, the SessionStart
+            installer's `npm ci --ignore-scripts` contract, byte-identical vendored
+            copies in `plugins/selat-hermes/` (subdirectory install), and that no doc
+            still names a superseded CLI version.
 
             > Review and merge this PR only after the component release notes and
             > cross-repository compatibility checks have been approved. Merging changes

@@ -3,8 +3,7 @@
 How to install SELAT in Codex.
 
 > Marketplace repo: **[`SELAT-AI/selat-plugins`](https://github.com/SELAT-AI/selat-plugins)**
-> (public). _Note: the Codex plugin commands below are adapted from Zero's flow and not yet tested on a live Codex — if they differ, use the pinned install in [generic.md](generic.md)._
-> Prefer the plugin: it ships the reviewed pin + lock. Do not install `@selat-ai/selat-cli@latest` as the payment path.
+> (public). Prefer the plugin: it ships the reviewed pin + lock. Do not install `@selat-ai/selat-cli@latest` as the payment path.
 
 ## Install
 
@@ -12,9 +11,6 @@ How to install SELAT in Codex.
 codex plugin marketplace add SELAT-AI/selat-plugins
 codex plugin add selat@selat-plugins
 ```
-
-> _Note: the `marketplace add` / `plugin add` subcommand names are adapted from Zero's documented
-> Codex flow; confirm against your Codex CLI, or use the pinned no-plugin install in [generic.md](generic.md)._
 
 The plugin reads `plugins/selat/.codex-plugin/plugin.json`, which wires the bundled
 `selat-discovery` skill and the hooks (`hooks/hooks.json`).

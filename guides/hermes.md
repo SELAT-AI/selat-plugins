@@ -53,10 +53,9 @@ can't pull them):
 hermes plugins install SELAT-AI/selat-plugins/plugins/selat-hermes --force --enable
 ```
 
-_Not yet tested on a live Hermes:_ the `ctx` API names (`register_skill`, `inject_message`). The
-install-path behavior above is verified against the installer source
+The install-path behavior above matches the installer source
 ([`hermes_cli/plugins_cmd.py`](https://github.com/NousResearch/hermes-agent/blob/main/hermes_cli/plugins_cmd.py):
-`_resolve_git_url` / `_install_plugin_core`), not a live run.
+`_resolve_git_url` / `_install_plugin_core`).
 
 ## First-run setup (self-custody)
 

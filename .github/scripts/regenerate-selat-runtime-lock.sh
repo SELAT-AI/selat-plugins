@@ -105,6 +105,20 @@ CLI_VERSION="$CLI_VERSION" perl -0pi -e '
   s{^([ \t]*)\d+\.\d+\.\d+(?:-[0-9A-Za-z][0-9A-Za-z.-]*)?(?:\+[0-9A-Za-z][0-9A-Za-z.-]*)?([ \t]*)$}{$1$v$2}mg;
 ' "$PIN_FILE"
 
+# The docs hand humans and agents a no-plugin fallback version. Move it with the
+# pin: a release that ships instructions for a superseded runner contradicts the
+# "install the reviewed pin, never @latest" contract the same docs argue for.
+# Scope is deliberately these doc files only. Provenance claims that live outside them
+# ("verified against @selat-ai/selat-cli@X" in the driver skill and hook comments) record
+# what was actually tested against, so a release must not silently restamp them.
+for doc in "$ROOT/README.md" "$ROOT/install.md" "$ROOT"/guides/*.md; do
+  [ -f "$doc" ] || continue
+  CLI_VERSION="$CLI_VERSION" perl -0pi -e '
+    my $v = $ENV{CLI_VERSION};
+    s{(\@selat-ai/selat-cli\@)\d+\.\d+\.\d+(?:-[0-9A-Za-z][0-9A-Za-z.-]*)?(?:\+[0-9A-Za-z][0-9A-Za-z.-]*)?}{$1$v}g;
+  ' "$doc"
+done
+
 # Hermes subdirectory installs copy only plugins/selat-hermes/, so the reviewed
 # closure must also live next to that plugin. Keep these byte-identical.
 install -m 0644 "$MANIFEST" "$HERMES_DIR/selat-runtime-package.json"
