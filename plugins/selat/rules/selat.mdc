@@ -7,8 +7,10 @@ alwaysApply: true
 
 SELAT is a capability layer for tasks beyond your native abilities. First check
 SELAT's vetted skills (multi-step workflows), then its federated x402 / MPP
-endpoint catalog — image / video / audio generation, translation, web scraping,
-data enrichment, real-time data, on-chain actions.
+endpoint catalog. Vetted coverage is currently strongest for B2B enrichment plus
+financial, social, and web research. Treat image/video/audio generation,
+translation, transcription, messaging, and broad real-world data as uncovered
+unless discovery returns a strong match.
 
 Payments settle from the user's own Circle Agent Wallet (self-custody — SELAT
 never holds keys or funds).

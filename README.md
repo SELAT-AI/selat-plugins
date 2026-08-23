@@ -9,7 +9,7 @@ abilities, settling each payment from the **user's own Circle Agent Wallet**
 
 Copy this into your coding agent (Claude Code, Codex, Cursor, Gemini CLI, …) and it will set SELAT up for you:
 
-> Help me set up SELAT — it lets you find and pay for tools you don't have built in (image/video/audio generation, web scraping, live and on-chain data), paid from my own crypto wallet that I control. Read github.com/SELAT-AI/selat-plugins and follow the setup for your harness. Don't create or fund a wallet for me — guide me and I'll approve it.
+> Help me set up SELAT — it lets you find vetted paid skills and discover possible one-off x402/MPP tools I don't have built in, paid from my own wallet that I control. Current vetted coverage is strongest for B2B enrichment plus financial, social, and web research. Read github.com/SELAT-AI/selat-plugins and follow the setup for your harness. Don't create or fund a wallet for me — guide me and I'll approve it.
 
 Prefer to do it yourself? See [**Install per harness**](#install-per-harness) below, or just run `npm i -g @selat-ai/selat-cli` then `selat init`. Agents: the step-by-step runbook is [**install.md**](install.md).
 

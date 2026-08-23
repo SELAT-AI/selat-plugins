@@ -1,7 +1,10 @@
 name: selat
 version: "0.1.2"
 description: >-
-  Discover and pay for capabilities beyond your native abilities (image/video/audio
-  generation, web scraping, live and on-chain data), per use, from your own Circle Agent
-  Wallet (MPC self-custody — SELAT never holds your keys or funds). Installs and drives the
-  published @selat-ai/selat-cli runner (which bundles the selat-discovery skill + selat-pay).
+  Discover and pay for capabilities beyond your native abilities through vetted
+  skills first, then free federated x402/MPP discovery for possible one-off matches.
+  Current vetted coverage is strongest for B2B enrichment plus financial, social,
+  and web research. Payments settle from your own
+  Circle Agent Wallet (MPC self-custody — SELAT never holds your keys or funds).
+  Installs and drives the published @selat-ai/selat-cli runner (which bundles the
+  selat-discovery skill + selat-pay).

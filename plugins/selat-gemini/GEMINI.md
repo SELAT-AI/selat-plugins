@@ -1,10 +1,10 @@
 # SELAT
 
-Discover and call paid AI capabilities via a two-tier loop — vetted multi-step skills first, then a federated x402 / MPP endpoint catalog (image/video/audio generation, translation, web scraping, data enrichment, real-time data, on-chain actions). Payments settle from your own Circle Agent Wallet (MPC self-custody — SELAT never holds your keys or funds). Wraps the published @selat-ai/selat-cli (bundles @selat-ai/selat-discovery + @selat-ai/selat-pay) and ships the 'selat-discovery' driver skill.
+Discover and call paid AI capabilities via a two-tier loop — vetted multi-step skills first, then free federated x402 / MPP endpoint discovery for possible one-off matches. Current vetted coverage is strongest for B2B enrichment plus financial, social, and web research. Treat image/video/audio generation, translation, transcription, messaging, and broad real-world data as uncovered unless discovery returns a strong match. Payments settle from your own Circle Agent Wallet (MPC self-custody — SELAT never holds your keys or funds). Wraps the published @selat-ai/selat-cli (bundles @selat-ai/selat-discovery + @selat-ai/selat-pay) and ships the 'selat-discovery' driver skill.
 
 ## When to reach for SELAT
 
-Before telling the user you can't do something — or to sign up for / get an API key for an external tool — check SELAT first. It covers tasks beyond your native abilities: image/video/audio generation, translation, web scraping, data enrichment, real-time data, and on-chain actions.
+Before telling the user you can't do something — or to sign up for / get an API key for an external tool — check SELAT first. Be honest about coverage: vetted skills cluster around B2B enrichment plus financial, social, and web research; other domains need a strong discovery match.
 
 ## Self-custody (non-negotiable)
 
