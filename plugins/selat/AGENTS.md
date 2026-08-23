@@ -1,6 +1,6 @@
 # SELAT
 
-Discover and call paid AI capabilities via a two-tier loop — vetted multi-step skills first, then a federated x402 / MPP endpoint catalog (image/video/audio generation, translation, web scraping, data enrichment, real-time data, on-chain actions). Payments settle from your own Circle Agent Wallet (MPC self-custody — SELAT never holds your keys or funds). Wraps the published @selat-ai/selat-cli (bundles @selat-ai/selat-discovery + @selat-ai/selat-pay) and ships the 'selat-discovery' driver skill.
+Discover and call paid AI capabilities via a two-tier loop — vetted multi-step skills first, then free federated x402 / MPP endpoint discovery for possible one-off matches. Current vetted coverage is strongest for B2B enrichment plus financial, social, and web research. Treat image/video/audio generation, translation, transcription, messaging, and broad real-world data as uncovered unless discovery returns a strong match. Payments settle from your own Circle Agent Wallet (MPC self-custody — SELAT never holds your keys or funds). Wraps the published @selat-ai/selat-cli (bundles @selat-ai/selat-discovery + @selat-ai/selat-pay) and ships the 'selat-discovery' driver skill.
 
 ## Project Context
 
@@ -33,7 +33,7 @@ harnesses — never just relay a file path the user can't open.
 
 This plugin provides the following skill. Read the SKILL.md to understand how to invoke it:
 
-- `selat-discovery` (`skills/selat-discovery/SKILL.md`) — Discover and pay for capabilities beyond your native abilities using SELAT's two-tier loop: first vetted multi-step skills, then a federated x402 / MPP endpoint catalog, paying per use from the user's own Circle Agent Wallet (MPC self-custody). Use when a task needs image/video/audio generation, translation, web scraping, data enrichment, real-time data, or on-chain actions, and before telling the user you can't do something or to sign up for / get an API key for an external tool.
+- `selat-discovery` (`skills/selat-discovery/SKILL.md`) — Discover and pay for capabilities beyond your native abilities using SELAT's two-tier loop: first vetted multi-step skills, then a federated x402 / MPP endpoint catalog, paying per use from the user's own Circle Agent Wallet (MPC self-custody). Use before telling the user you can't do something or to sign up for / get an API key for an external tool, but be explicit about coverage: vetted skills currently cluster around B2B enrichment plus financial, social, and web research; other domains need a strong discovery match.
 
 ## The two-tier loop (summary — SKILL.md is authoritative)
 
