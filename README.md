@@ -79,7 +79,6 @@ auto-approved; anything that spends or moves money (`selat run`, `selat skill ru
 | Gemini CLI | [guides/gemini-cli.md](guides/gemini-cli.md) | `gemini extensions install https://github.com/SELAT-AI/selat-plugins` (no spend hook, no locked runner; `--auto-update` is not the default) |
 | OpenClaw | [guides/openclaw.md](guides/openclaw.md) | `openclaw plugins install selat --marketplace https://github.com/SELAT-AI/selat-plugins` (bundle auto-detect) |
 | Hermes | [guides/hermes.md](guides/hermes.md) | `hermes plugins install SELAT-AI/selat-plugins/plugins/selat-hermes --enable` — the subdirectory path is required (the bare repo form buries the plugin at `plugins/selat-plugins/plugins/selat-hermes/`; see the guide). The plugin vendors the pin + lock and installs the reviewed runner |
-| Grok Build | [guides/grok-build.md](guides/grok-build.md) | `/marketplace` or `grok plugin install selat --trust` once listed. Before the xAI catalog merge: `grok plugin marketplace add SELAT-AI/selat-plugins` then `grok plugin install selat --trust`, or `grok plugin install SELAT-AI/selat-plugins#plugins/selat --trust` |
 | Any other / none | [guides/generic.md](guides/generic.md) | `npm i -g @selat-ai/selat-cli@0.16.9 --ignore-scripts` then `selat init` (not `@latest`) |
 
 After install, every harness runs the same first-time setup (self-custody):
@@ -135,7 +134,7 @@ plugins/
     selat-runtime-package.json     # vendored reviewed manifest
     selat-runtime-package-lock.json
 guides/
-  claude-code.md  codex.md  cursor.md  gemini-cli.md  openclaw.md  hermes.md  grok-build.md  generic.md
+  claude-code.md  codex.md  cursor.md  gemini-cli.md  openclaw.md  hermes.md  generic.md
 .github/
   workflows/sync-selat-cli-version.yml   # coordinated runtime release (manual): regenerates pin + lock, opens a review PR
   workflows/validate-selat-runtime-lock.yml
