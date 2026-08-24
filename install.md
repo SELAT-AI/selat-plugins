@@ -46,6 +46,16 @@ openclaw plugins install selat --marketplace https://github.com/SELAT-AI/selat-p
 OpenClaw auto-detects the bundle layout (`.claude-plugin/` + skill + `AGENTS.md`); no native
 manifest.
 
+### Hermes
+```bash
+hermes plugins install SELAT-AI/selat-plugins/plugins/selat-hermes --enable
+```
+The `…/plugins/selat-hermes` **subdirectory path is required** — the bare `owner/repo` form clones
+the whole marketplace repo and leaves the plugin buried where Hermes never loads it. Hermes plugins
+are opt-in, so `--enable` (or answering the `Enable 'selat' now?` prompt) is required before it
+runs. Updating is a force-reinstall rather than `hermes plugins update` — see section 6 below.
+Full guide: [guides/hermes.md](guides/hermes.md).
+
 ### Cursor
 Install from the **Customize** panel (sidebar → Customize → Marketplace, or search by keyword);
 Cursor has no `cursor plugin add` CLI. Community plugins also live at cursor.directory. Full
