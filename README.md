@@ -75,6 +75,7 @@ auto-approved; anything that spends or moves money (`selat run`, `selat skill ru
 |---|---|---|
 | Claude Code | [guides/claude-code.md](guides/claude-code.md) | `/plugin marketplace add SELAT-AI/selat-plugins` then `/plugin install selat@selat-plugins` |
 | Codex | [guides/codex.md](guides/codex.md) | `codex plugin marketplace add SELAT-AI/selat-plugins` then `codex plugin add selat@selat-plugins` |
+| Grok Build | [install.md#grok-build](install.md#grok-build) | `grok plugin marketplace add SELAT-AI/selat-plugins` then `grok plugin install selat --trust`, then `npm install -g @selat-ai/selat-cli` (plugin `SessionStart` hooks don't execute in grok 1.0.5, so Grok gets the floating npm runner, not the reviewed pin + lock — see [guides/grok-plugin-hook-gap.md](guides/grok-plugin-hook-gap.md)) |
 | Cursor | [guides/cursor.md](guides/cursor.md) | Customize → Marketplace (or paste the prompt above). **Then allowlist SELAT in `.cursor/sandbox.json`** — see the guide |
 | Gemini CLI | [guides/gemini-cli.md](guides/gemini-cli.md) | `gemini extensions install https://github.com/SELAT-AI/selat-plugins` (no spend hook, no locked runner; `--auto-update` is not the default) |
 | OpenClaw | [guides/openclaw.md](guides/openclaw.md) | `openclaw plugins install selat --marketplace https://github.com/SELAT-AI/selat-plugins` (bundle auto-detect) |
