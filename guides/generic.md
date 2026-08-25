@@ -11,7 +11,7 @@ Install the **pinned** CLI (the same version the plugin lock reviews). Do **not*
 `@latest` as a payment runner:
 
 ```bash
-npm i -g @selat-ai/selat-cli@0.16.10 --ignore-scripts
+npm i -g @selat-ai/selat-cli@0.16.11 --ignore-scripts
 ```
 
 The exact pin lives in `plugins/selat/hooks-handlers/selat-cli.version`. If that file

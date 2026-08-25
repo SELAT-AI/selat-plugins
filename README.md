@@ -14,13 +14,13 @@ Copy this into your coding agent (Claude Code, Codex, Cursor, Gemini CLI, …) a
 Prefer to do it yourself? See [**Install per harness**](#install-per-harness) below.
 On a supported harness, use the plugin installer (reviewed pin + lock, `npm ci --ignore-scripts`).
 The no-plugin fallback is the **pinned** CLI in [guides/generic.md](guides/generic.md)
-(`@selat-ai/selat-cli@0.16.10 --ignore-scripts` — not `@latest`). Agents: the step-by-step
+(`@selat-ai/selat-cli@0.16.11 --ignore-scripts` — not `@latest`). Agents: the step-by-step
 runbook is [**install.md**](install.md).
 
 > **Marketplace repo: [`SELAT-AI/selat-plugins`](https://github.com/SELAT-AI/selat-plugins)** —
 > the third SELAT distribution surface (after the npm package and the published skill).
 > Prefer the plugin install below (reviewed pin + lock). The no-plugin fallback is
-> [guides/generic.md](guides/generic.md): `npm i -g @selat-ai/selat-cli@0.16.10 --ignore-scripts`
+> [guides/generic.md](guides/generic.md): `npm i -g @selat-ai/selat-cli@0.16.11 --ignore-scripts`
 > then `selat init`. Do not install `@latest` as the payment path.
 
 ## What this is
@@ -79,7 +79,7 @@ auto-approved; anything that spends or moves money (`selat run`, `selat skill ru
 | Gemini CLI | [guides/gemini-cli.md](guides/gemini-cli.md) | `gemini extensions install https://github.com/SELAT-AI/selat-plugins` (no spend hook, no locked runner; `--auto-update` is not the default) |
 | OpenClaw | [guides/openclaw.md](guides/openclaw.md) | `openclaw plugins install selat --marketplace https://github.com/SELAT-AI/selat-plugins` (bundle auto-detect) |
 | Hermes | [guides/hermes.md](guides/hermes.md) | `hermes plugins install SELAT-AI/selat-plugins/plugins/selat-hermes --enable` — the subdirectory path is required (the bare repo form buries the plugin at `plugins/selat-plugins/plugins/selat-hermes/`; see the guide). The plugin vendors the pin + lock and installs the reviewed runner |
-| Any other / none | [guides/generic.md](guides/generic.md) | `npm i -g @selat-ai/selat-cli@0.16.10 --ignore-scripts` then `selat init` (not `@latest`) |
+| Any other / none | [guides/generic.md](guides/generic.md) | `npm i -g @selat-ai/selat-cli@0.16.11 --ignore-scripts` then `selat init` (not `@latest`) |
 
 After install, every harness runs the same first-time setup (self-custody):
 
