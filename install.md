@@ -31,6 +31,29 @@ codex plugin marketplace add SELAT-AI/selat-plugins
 codex plugin add selat@selat-plugins
 ```
 
+### Grok Build
+```bash
+grok plugin marketplace add SELAT-AI/selat-plugins
+grok plugin install selat --trust
+npm install -g @selat-ai/selat-cli
+```
+Grok reads this repo's `.claude-plugin/` manifests natively — the marketplace, the plugin, and
+the `selat-discovery` skill all load with no Grok-specific manifest (verified on grok 1.0.5).
+`--trust` is required: Grok keeps a plugin's hooks inactive until trusted.
+**The runner needs the explicit `npm install` line for now**: in our grok 1.0.5 testing,
+plugin-bundled `SessionStart` hooks do not execute (only global `~/.grok/hooks/` fire), so the
+session-start hook that installs the reviewed, locked runner on Claude Code / Cursor / OpenClaw
+/ Hermes does not yet run under Grok — without the npm install, the skill loads but `selat` is
+missing. This means Grok gets the floating npm runner, not the reviewed pin + lock, until Grok
+runs plugin hooks. If Grok Build shares the machine with Claude Code, two things follow: Grok
+may import this marketplace from Claude's config on its own (`marketplace add` then reports it
+as already configured — fine; go straight to `install`), and Claude's own session-start hook
+has already installed the locked runner and put it on your PATH, so the `npm install` line is
+unnecessary there.
+Verify: `grok plugin details selat` (expect `1 skill dir(s) … hooks`), or `grok inspect` in any
+project (expect `selat-discovery  plugin: selat` under Skills and `selat (user, enabled)` under
+Plugins), then start a session and run `selat --version`.
+
 ### Gemini CLI
 ```bash
 gemini extensions install https://github.com/SELAT-AI/selat-plugins
