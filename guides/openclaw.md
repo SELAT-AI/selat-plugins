@@ -29,10 +29,6 @@ openclaw plugins list
 openclaw plugins inspect selat
 ```
 
-_Note: the exact bundle-install invocation isn't verified on a live OpenClaw yet — auto-detection
-of the `.claude-plugin/` bundle is documented, but test with a local install first
-(`openclaw plugins install ./plugins/selat`)._
-
 ## First-run setup (self-custody)
 
 SELAT pays from **your own Circle Agent Wallet** (MPC self-custody) — it never holds your keys or
