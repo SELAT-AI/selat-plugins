@@ -1,4 +1,4 @@
-# SELAT for Hermes Agent
+# SELAT for Hermes
 
 How to use SELAT in [Hermes Agent](https://github.com/NousResearch/hermes-agent) (Nous Research).
 
