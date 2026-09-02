@@ -36,7 +36,7 @@ The Gemini variant differs from the Claude/Codex plugin:
 SELAT pays from **your own Circle Agent Wallet** (MPC self-custody) — it never holds
 your keys or funds, and never creates a wallet for you. Gemini does not install the
 locked runner. If `selat` is not already the reviewed plugin prefix, install the pinned
-CLI from [generic.md](generic.md) (`@selat-ai/selat-cli@0.16.15 --ignore-scripts` — not
+CLI from [generic.md](generic.md) (`@selat-ai/selat-cli@0.16.16 --ignore-scripts` — not
 `@latest`). Then run onboarding yourself:
 
 ```bash
