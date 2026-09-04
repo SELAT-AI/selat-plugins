@@ -110,7 +110,7 @@ Prefer a plugin install above when your harness supports one — that path uses 
 reviewed pin + lock and `npm ci --ignore-scripts`. If there is no plugin, install the
 **pinned** CLI (not `@latest`):
 ```bash
-npm i -g @selat-ai/selat-cli@0.16.16 --ignore-scripts
+npm i -g @selat-ai/selat-cli@0.16.17 --ignore-scripts
 ```
 The exact pin is `plugins/selat/hooks-handlers/selat-cli.version`. See
 [guides/generic.md](guides/generic.md).
