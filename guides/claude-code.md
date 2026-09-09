@@ -1,6 +1,6 @@
-# SELAT for Claude Code (CLI)
+# SELAT for Claude Code
 
-How to install SELAT in the Claude Code CLI.
+How to install SELAT in the Claude Code.
 
 > Marketplace repo: **[`SELAT-AI/selat-plugins`](https://github.com/SELAT-AI/selat-plugins)**
 > (public). The `claude plugin marketplace add` flow below is verified end-to-end. Prefer
