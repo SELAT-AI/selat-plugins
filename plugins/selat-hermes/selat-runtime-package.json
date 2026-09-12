@@ -6,7 +6,7 @@
   "dependencies": {
     "@selat-ai/selat-cli": "0.17.2",
     "@selat-ai/selat-discovery": "0.25.1",
-    "@selat-ai/selat-pay": "0.11.1"
+    "@selat-ai/selat-pay": "0.11.2"
   },
   "overrides": {
     "ws": "8.21.0"
