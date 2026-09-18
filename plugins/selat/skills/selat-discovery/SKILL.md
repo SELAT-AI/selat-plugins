@@ -20,8 +20,8 @@ description: >-
 > @selat-ai/selat-discovery SKILL.md (bundled inside @selat-ai/selat-cli) remains the
 > source of truth for exact subcommand flags, output shapes, and any commands added
 > after the pinned CLI version. Where they conflict, the published skill wins. The
-> command surface below was verified against @selat-ai/selat-cli@0.17.2 and
-> @selat-ai/selat-discovery@0.25.1.
+> command surface below was verified against @selat-ai/selat-cli@0.17.5 and
+> @selat-ai/selat-discovery@0.26.1.
 
 SELAT is a capability layer for AI agents. It does two things a flat capability index
 doesn't: it checks **vetted skills first**, and it pays from the **user's own wallet** —
@@ -63,7 +63,11 @@ holds keys or balance. So:
   `circle` commands. `selat fund` and any paid call still need explicit approval **and an
   armed session budget** (`selat budget start`); `selat freeze` is the kill switch — never
   auto-fund or auto-pay.
-- A `--raw-key` dev mode exists but is **not for production** — do not steer users to it.
+- There is no local-key signing mode. Every signature goes through the Circle Agent Wallet
+  (MPC); never suggest a private-key or `--raw-key` path — the flag no longer exists. That
+  includes Arc mainnet: `selat fund --chain arc` deposits from the agent wallet like any other
+  chain (direct method only — no eco on Arc) and needs Circle CLI >= 1.1.1, which `selat init`
+  installs or upgrades to automatically.
 - Before any spend, surface the cost and get the user's go-ahead. Spending limits are
   set via `selat setup-policy` (recommended before deposits > $20); funding via
   `selat fund`. Both are user-driven money actions — never run them unprompted.
@@ -107,9 +111,8 @@ selat skill run <name> [--param value ...] [--max-amount <usd>] [--chain <key>]
 ```
 
 `selat skill run` takes the skill's own params as `--flags` (manifest keys map 1:1).
-Three names are reserved overrides applied to every step, not passed as params:
-`--max-amount <usd>` (per-call cost cap), `--chain <key>` (force a settlement chain),
-and `--raw-key` (dev-only EOA signing — do not steer users to it).
+Two names are reserved overrides applied to every step, not passed as params:
+`--max-amount <usd>` (per-call cost cap) and `--chain <key>` (force a settlement chain).
 
 If a vetted skill covers the task, prefer it: it's a known-good, capped workflow. Pass
 `--max-amount` to hold the spend to a number the user approved.
@@ -241,8 +244,8 @@ Actor input is per-Actor (e.g. `{"username":["natgeo"],"resultsLimit":3}`) — r
 | `selat history` | Show locally recorded Gateway micropayments | no |
 | `selat spend` | Unified spend report: settled spend + Apify token utilization (read-only) | no |
 
-> Flag surface verified against @selat-ai/selat-cli@0.17.2 (`lib/commands/run.mjs`,
-> `lib/commands/skill.mjs`) and @selat-ai/selat-discovery@0.25.1:
+> Flag surface verified against @selat-ai/selat-cli@0.17.5 (`lib/commands/run.mjs`,
+> `lib/commands/skill.mjs`) and @selat-ai/selat-discovery@0.26.1:
 > • `selat search "<intent>"` (`lib/commands/search.mjs`) is FREE discovery — the same
 >   ranker as `selat run` in its no-`--pick` mode, so it never settles. Flags: `--top N`
 >   (default 5), `--json` (for agents/hooks), `--explain` (why each match is/isn't
@@ -266,8 +269,8 @@ Actor input is per-Actor (e.g. `{"username":["natgeo"],"resultsLimit":3}`) — r
 >   `{ runner, cmd, argv, env? }`, the resolved spawn tuple the paid run would execute.
 >   Spawn it directly (no shell) to run exactly what was quoted; `command` beside it is
 >   the shell-quoted human display of the same thing, not something to re-parse.
-> • `selat skill run <name>` accepts the skill's params as `--flags` plus three reserved
->   overrides: `--max-amount <usd>`, `--chain <key>`, `--raw-key`.
+> • `selat skill run <name>` accepts the skill's params as `--flags` plus two reserved
+>   overrides: `--max-amount <usd>`, `--chain <key>`.
 > • `--max-amount` is also the mandatory cost cap on the underlying `selat-pay` engine.
 > • `selat doctor` prints sectioned diagnostics (Binaries · Agent-payment skill · Circle
 >   CLI · Agent Wallet · Spending policy (per chain) · selat-pay · Config · Router
