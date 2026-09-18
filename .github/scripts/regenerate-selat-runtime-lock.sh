@@ -53,6 +53,11 @@ done
 # Resolve registry metadata and integrity only in a disposable directory. The
 # generated lock is copied into the plugin after all validation passes.
 TMP="$(mktemp -d "${TMPDIR:-/tmp}/selat-runtime-lock.XXXXXX")"
+# Resolve symlinks: on macOS $TMPDIR is /var/folders/… -> /private/var/…, and
+# npm keys the generated lock relative to the unresolved --prefix, so every
+# package lands under "../../private/var/…" instead of "node_modules/…" and
+# the verification below can't find them.
+TMP="$(cd "$TMP" && pwd -P)"
 trap 'rm -rf "$TMP"' EXIT
 TMP_MANIFEST="$TMP/package.json"
 TMP_LOCK="$TMP/package-lock.json"

@@ -20,8 +20,8 @@ description: >-
 > @selat-ai/selat-discovery SKILL.md (bundled inside @selat-ai/selat-cli) remains the
 > source of truth for exact subcommand flags, output shapes, and any commands added
 > after the pinned CLI version. Where they conflict, the published skill wins. The
-> command surface below was verified against @selat-ai/selat-cli@0.17.2 and
-> @selat-ai/selat-discovery@0.25.1.
+> command surface below was verified against @selat-ai/selat-cli@0.17.5 and
+> @selat-ai/selat-discovery@0.26.1.
 
 SELAT is a capability layer for AI agents. It does two things a flat capability index
 doesn't: it checks **vetted skills first**, and it pays from the **user's own wallet** —
@@ -64,7 +64,10 @@ holds keys or balance. So:
   armed session budget** (`selat budget start`); `selat freeze` is the kill switch — never
   auto-fund or auto-pay.
 - There is no local-key signing mode. Every signature goes through the Circle Agent Wallet
-  (MPC); never suggest a private-key or `--raw-key` path — the flag no longer exists.
+  (MPC); never suggest a private-key or `--raw-key` path — the flag no longer exists. That
+  includes Arc mainnet: `selat fund --chain arc` deposits from the agent wallet like any other
+  chain (direct method only — no eco on Arc) and needs Circle CLI >= 1.1.1, which `selat init`
+  installs or upgrades to automatically.
 - Before any spend, surface the cost and get the user's go-ahead. Spending limits are
   set via `selat setup-policy` (recommended before deposits > $20); funding via
   `selat fund`. Both are user-driven money actions — never run them unprompted.
@@ -241,8 +244,8 @@ Actor input is per-Actor (e.g. `{"username":["natgeo"],"resultsLimit":3}`) — r
 | `selat history` | Show locally recorded Gateway micropayments | no |
 | `selat spend` | Unified spend report: settled spend + Apify token utilization (read-only) | no |
 
-> Flag surface verified against @selat-ai/selat-cli@0.17.2 (`lib/commands/run.mjs`,
-> `lib/commands/skill.mjs`) and @selat-ai/selat-discovery@0.25.1:
+> Flag surface verified against @selat-ai/selat-cli@0.17.5 (`lib/commands/run.mjs`,
+> `lib/commands/skill.mjs`) and @selat-ai/selat-discovery@0.26.1:
 > • `selat search "<intent>"` (`lib/commands/search.mjs`) is FREE discovery — the same
 >   ranker as `selat run` in its no-`--pick` mode, so it never settles. Flags: `--top N`
 >   (default 5), `--json` (for agents/hooks), `--explain` (why each match is/isn't
