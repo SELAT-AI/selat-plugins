@@ -1,11 +1,24 @@
 name: Prepare coordinated SELAT runtime release
 
 # A plugin runtime is a reviewed closure, not a floating CLI package. This workflow
-# is intentionally manual: release owners provide the already-published exact CLI,
-# discovery, and payment versions, then review the generated manifest/lock PR.
-# It never merges or publishes a release.
+# prepares the review PR for one coordinated release: it regenerates the locked
+# runtime AND bumps the plugin version in the same PR (a runtime refresh without a
+# plugin bump makes `claude plugin update` a no-op). It never merges or publishes.
+#
+# Triggers:
+#   - repository_dispatch `selat-cli-published` (sent by selat-cli's publish
+#     workflow, payload: cli_version) -- the normal path.
+#   - workflow_dispatch -- manual fallback. Only cli_version is required;
+#     discovery_version / pay_version default to the newest published release
+#     satisfying the dependency ranges of that exact CLI version.
+#
+# Secret (optional but recommended): RELEASE_BOT_TOKEN, a PAT or GitHub App token
+# with contents + pull-requests write. PRs opened with the default GITHUB_TOKEN do
+# not trigger other workflows, so without it the review PR gets no CI checks.
 
 on:
+  repository_dispatch:
+    types: [selat-cli-published]
   workflow_dispatch:
     inputs:
       cli_version:
@@ -13,12 +26,12 @@ on:
         required: true
         type: string
       discovery_version:
-        description: 'Exact published @selat-ai/selat-discovery version (for example, 0.24.1)'
-        required: true
+        description: 'Exact @selat-ai/selat-discovery version (blank = newest satisfying the CLI range)'
+        required: false
         type: string
       pay_version:
-        description: 'Exact published @selat-ai/selat-pay version (for example, 0.9.7)'
-        required: true
+        description: 'Exact @selat-ai/selat-pay version (blank = newest satisfying the CLI range)'
+        required: false
         type: string
 
 permissions:
@@ -41,12 +54,62 @@ jobs:
           node-version: '22'
           registry-url: 'https://registry.npmjs.org'
 
-      - name: Regenerate reviewed runtime closure
+      - name: Resolve component versions
+        id: versions
+        env:
+          EVENT_CLI: ${{ github.event.client_payload.cli_version }}
+          INPUT_CLI: ${{ inputs.cli_version }}
+          INPUT_DISCOVERY: ${{ inputs.discovery_version }}
+          INPUT_PAY: ${{ inputs.pay_version }}
         run: |
-          .github/scripts/regenerate-selat-runtime-lock.sh \
-            '${{ inputs.cli_version }}' \
-            '${{ inputs.discovery_version }}' \
-            '${{ inputs.pay_version }}'
+          set -euo pipefail
+          CLI="${INPUT_CLI:-$EVENT_CLI}"
+          CLI="${CLI#v}"
+          [ -n "$CLI" ] || { echo "::error::cli_version is required"; exit 1; }
+
+          # The CLI is the propagation vehicle: derive the other two from its own
+          # dependency ranges unless the caller pinned them. Wait for npm to serve it.
+          for i in $(seq 1 30); do
+            DEPS="$(npm view "@selat-ai/selat-cli@${CLI}" dependencies --json 2>/dev/null || true)"
+            [ -n "$DEPS" ] && break
+            sleep 10
+          done
+          [ -n "$DEPS" ] || { echo "::error::@selat-ai/selat-cli@${CLI} is not on npm"; exit 1; }
+
+          resolve() {
+            local pkg="$1" pinned="$2" range
+            if [ -n "$pinned" ]; then echo "${pinned#v}"; return; fi
+            range="$(node -p "JSON.parse(process.argv[1])['$pkg'] || ''" "$DEPS")"
+            [ -n "$range" ] || { echo "::error::$pkg is not a dependency of selat-cli@${CLI}" >&2; exit 1; }
+            npm view "$pkg@$range" version --json | node -e "
+              const v = JSON.parse(require('fs').readFileSync(0, 'utf8'));
+              console.log(Array.isArray(v) ? v[v.length - 1] : v);"
+          }
+          DISCOVERY="$(resolve @selat-ai/selat-discovery "$INPUT_DISCOVERY")"
+          PAY="$(resolve @selat-ai/selat-pay "$INPUT_PAY")"
+          echo "cli=$CLI" >> "$GITHUB_OUTPUT"
+          echo "discovery=$DISCOVERY" >> "$GITHUB_OUTPUT"
+          echo "pay=$PAY" >> "$GITHUB_OUTPUT"
+          echo "Resolved: cli $CLI / discovery $DISCOVERY / pay $PAY"
+
+      - name: Regenerate reviewed runtime closure
+        env:
+          CLI: ${{ steps.versions.outputs.cli }}
+          DISCOVERY: ${{ steps.versions.outputs.discovery }}
+          PAY: ${{ steps.versions.outputs.pay }}
+        run: |
+          .github/scripts/regenerate-selat-runtime-lock.sh "$CLI" "$DISCOVERY" "$PAY"
+
+      - name: Bump plugin version
+        id: bump
+        run: |
+          # Only when the runtime actually changed; a no-op refresh opens no PR.
+          if git diff --quiet -- plugins/selat/hooks-handlers/selat-cli.version; then
+            echo "Runtime pin unchanged; not bumping the plugin."
+            echo "plugin=" >> "$GITHUB_OUTPUT"
+          else
+            echo "plugin=$(.github/scripts/bump-plugin-version.sh)" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Validate locked runtime and installer contract
         run: |
@@ -54,25 +117,30 @@ jobs:
           git diff --check
 
       - name: Open review PR
+        if: steps.bump.outputs.plugin != ''
         uses: peter-evans/create-pull-request@v7
         with:
+          # RELEASE_BOT_TOKEN makes CI run on the PR; falls back to GITHUB_TOKEN.
+          token: ${{ secrets.RELEASE_BOT_TOKEN || github.token }}
           base: main
-          branch: ci/selat-runtime-${{ inputs.cli_version }}-${{ inputs.discovery_version }}-${{ inputs.pay_version }}
+          branch: ci/selat-runtime-${{ steps.versions.outputs.cli }}-${{ steps.versions.outputs.discovery }}-${{ steps.versions.outputs.pay }}
           delete-branch: true
-          commit-message: 'chore: refresh coordinated SELAT runtime closure'
-          title: 'chore: refresh SELAT runtime (${{ inputs.cli_version }} / ${{ inputs.discovery_version }} / ${{ inputs.pay_version }})'
+          commit-message: 'chore: runtime ${{ steps.versions.outputs.cli }} / ${{ steps.versions.outputs.discovery }} / ${{ steps.versions.outputs.pay }}; plugin ${{ steps.bump.outputs.plugin }}'
+          title: 'chore: runtime ${{ steps.versions.outputs.cli }} / ${{ steps.versions.outputs.discovery }} / ${{ steps.versions.outputs.pay }}; plugin ${{ steps.bump.outputs.plugin }}'
           body: |
             This PR was generated from the coordinated SELAT runtime release gate.
 
             | Component | Exact version |
             |---|---:|
-            | `@selat-ai/selat-cli` | `${{ inputs.cli_version }}` |
-            | `@selat-ai/selat-discovery` | `${{ inputs.discovery_version }}` |
-            | `@selat-ai/selat-pay` | `${{ inputs.pay_version }}` |
+            | `@selat-ai/selat-cli` | `${{ steps.versions.outputs.cli }}` |
+            | `@selat-ai/selat-discovery` | `${{ steps.versions.outputs.discovery }}` |
+            | `@selat-ai/selat-pay` | `${{ steps.versions.outputs.pay }}` |
+            | selat plugin | `${{ steps.bump.outputs.plugin }}` |
 
             The workflow regenerated `selat-runtime-package.json` and its npm lockfile
             with lifecycle scripts disabled, resynced the documented no-plugin pin in
-            `README.md`, `install.md`, and `guides/*.md`, then validated direct versions,
+            `README.md`, `install.md`, and `guides/*.md`, bumped the plugin version so
+            `claude plugin update` picks the refresh up, then validated direct versions,
             npm integrity metadata, the `ws@8.21.0` override, the SessionStart
             installer's `npm ci --ignore-scripts` contract, byte-identical vendored
             copies in `plugins/selat-hermes/` (subdirectory install), and that no doc
