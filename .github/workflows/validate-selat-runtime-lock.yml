@@ -17,6 +17,7 @@ on:
       - 'plugins/selat-hermes/test_ensure_runner.py'
       - '.github/scripts/regenerate-selat-runtime-lock.sh'
       - '.github/scripts/validate-selat-runtime-lock.sh'
+      - '.github/scripts/bump-plugin-version.sh'
       - '.github/workflows/validate-selat-runtime-lock.yml'
       - '.github/workflows/sync-selat-cli-version.yml'
       - 'README.md'
