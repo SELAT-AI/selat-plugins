@@ -68,13 +68,19 @@ jobs:
           [ -n "$CLI" ] || { echo "::error::cli_version is required"; exit 1; }
 
           # The CLI is the propagation vehicle: derive the other two from its own
-          # dependency ranges unless the caller pinned them. Wait for npm to serve it.
+          # dependency ranges unless the caller pinned them. npm can serve a freshly
+          # published version late (or an error JSON), so only accept a response
+          # that actually lists the CLI's dependencies, and retry for ~5 minutes.
+          DEPS=""
           for i in $(seq 1 30); do
-            DEPS="$(npm view "@selat-ai/selat-cli@${CLI}" dependencies --json 2>/dev/null || true)"
-            [ -n "$DEPS" ] && break
+            OUT="$(npm view "@selat-ai/selat-cli@${CLI}" dependencies --json 2>/dev/null || true)"
+            if node -e 'const d = JSON.parse(process.argv[1]); process.exit(d && d["@selat-ai/selat-pay"] ? 0 : 1)' "$OUT" 2>/dev/null; then
+              DEPS="$OUT"
+              break
+            fi
             sleep 10
           done
-          [ -n "$DEPS" ] || { echo "::error::@selat-ai/selat-cli@${CLI} is not on npm"; exit 1; }
+          [ -n "$DEPS" ] || { echo "::error::@selat-ai/selat-cli@${CLI} dependencies are not on npm yet"; exit 1; }
 
           resolve() {
             local pkg="$1" pinned="$2" range
