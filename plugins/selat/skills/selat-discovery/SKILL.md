@@ -65,15 +65,19 @@ holds keys or balance. So:
   auto-fund or auto-pay.
 - There is no local-key signing mode. Every signature goes through the Circle Agent Wallet
   (MPC); never suggest a private-key or `--raw-key` path — the flag no longer exists. That
-  includes Arc mainnet: `selat fund --chain arc` deposits from the agent wallet like any other
-  chain (direct method only — no eco on Arc) and needs Circle CLI >= 1.1.1, which `selat init`
-  installs or upgrades to automatically.
+  includes Arc mainnet, the **recommended deposit chain**: `selat fund` defaults to
+  `--chain arc` for direct deposits (USDC is Arc's gas token; the deposit gas was sponsored for
+  agent wallets in testing). Eco (`--method eco`) can't source from Arc — it takes Base,
+  Arbitrum or Optimism (~$0.03 fee, no gas needed) and also settles into Gateway on Arc. Needs Circle CLI >= 1.2.1, which `selat init` installs or
+  upgrades to automatically. (Funding behavior verified against @selat-ai/selat-cli@0.17.14 and
+  @selat-ai/selat-discovery@0.28.0.)
 - Before any spend, surface the cost and get the user's go-ahead. Spending limits are
   set via `selat setup-policy` (recommended before deposits > $20); funding via
   `selat fund`. Both are user-driven money actions — never run them unprompted.
-- **Funding is two movements**: (1) top up the agent wallet address with USDC, then (2)
-  `selat fund` deposits it into Gateway. For movement (1) there are two paths: a crypto
-  transfer to the wallet address, or **fiat via `selat fund --onramp [--address 0x…]`**
+- **Funding is two movements**: (1) top up the agent wallet address with USDC — preferably on
+  Arc — then (2) `selat fund` deposits it into Gateway. For movement (1) there are two paths: a
+  crypto transfer to the wallet address (USDC already on another chain can be moved to Arc
+  with `circle bridge transfer ARC --chain <src>`, ~$0.05–0.08, or deposited from where it is), or **fiat via `selat fund --onramp [--address 0x…]`**
   (selat-cli 0.15.17+) — it mints a Circle Onramp browser link, chain-scoped so purchases
   can't strand. **The user picks the amount inside the widget — never ask for an amount
   before launching, and never treat the mint as a spend** (nothing moves until the user
@@ -85,8 +89,9 @@ holds keys or balance. So:
   Verify it with `circle gateway balance --all`, or the Gateway line in `selat doctor` —
   **never** the wallet's on-chain address balance. A deposit moves USDC from the address into
   Gateway, so the on-chain balance dropping (even to 0) is by design, not lost money. Deposits
-  take ~5–10 min to settle; a fresh 0 Gateway reading usually means "still settling" — don't
-  tell the user funds are lost. If `circle wallet balance` and an on-chain read disagree, say
+  on Arc credit within seconds and eco deposits in about a minute; other chains can take
+  ~5–10 min. A fresh 0 Gateway reading usually means "still settling" — don't tell the user
+  funds are lost. If `circle wallet balance` and an on-chain read disagree, say
   "a fresh transfer can take a minute to be readable — let's re-check" — **never** speculate
   that Circle "holds" funds off-chain (reads just lag; that speculation manufactures a
   custodial misconception). When `selat fund` prints a QR image path, send that image to the
