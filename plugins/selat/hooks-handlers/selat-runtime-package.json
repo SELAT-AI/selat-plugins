@@ -1,12 +1,12 @@
 {
   "name": "@selat-ai/plugin-runtime-lock",
   "private": true,
-  "version": "0.17.14",
+  "version": "0.17.15",
   "description": "Locked SELAT plugin runtime closure; update only through the coordinated SELAT release process.",
   "dependencies": {
-    "@selat-ai/selat-cli": "0.17.14",
-    "@selat-ai/selat-discovery": "0.28.0",
-    "@selat-ai/selat-pay": "0.12.1"
+    "@selat-ai/selat-cli": "0.17.15",
+    "@selat-ai/selat-discovery": "0.28.1",
+    "@selat-ai/selat-pay": "0.12.2"
   },
   "overrides": {
     "ws": "8.21.0"
