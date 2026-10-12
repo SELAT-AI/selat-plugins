@@ -62,7 +62,9 @@ holds keys or balance. So:
   `selat init` before it's needed, pre-install Circle CLI, or improvise
   `circle` commands. `selat fund` and any paid call still need explicit approval **and an
   armed session budget** (`selat budget start`); `selat freeze` is the kill switch — never
-  auto-fund or auto-pay.
+  auto-fund or auto-pay. With a budget already armed, `selat budget start` refuses; changing
+  it takes `--force` (spend so far carries over). When a call hits "session budget exhausted",
+  tell the user and wait — never re-arm or `--force` the budget yourself. (selat-cli ≥0.17.15)
 - There is no local-key signing mode. Every signature goes through the Circle Agent Wallet
   (MPC); never suggest a private-key or `--raw-key` path — the flag no longer exists. That
   includes Arc mainnet, the **recommended deposit chain**: `selat fund` defaults to
