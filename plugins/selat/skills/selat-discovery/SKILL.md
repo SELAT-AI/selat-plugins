@@ -39,6 +39,14 @@ which bundles the discovery skill and the `selat-pay` engine). Resolve it in thi
 3. If neither resolves, SELAT isn't available in this environment — tell the user
    rather than improvising. Do **not** hand-roll x402 requests or paste private keys.
 
+**Run only `selat`.** `@selat-ai/selat-pay` (the pay engine) and
+`@selat-ai/selat-discovery` (the ranker and its `rank.mjs` scripts) are dependencies
+inside `selat`, never commands you run: the plugin runtime does not put them on PATH, and
+selat-pay's own flags (`--chain`) bypass the runner's chain resolution. Discovery goes
+through `selat search`, every spend through `selat run` or `selat skill run`. If any
+output shows a `selat-pay …` or `rank.mjs …` command (a `--dry-run` plan, a hint, an
+error), treat it as a description of what `selat` will do, never as something to execute.
+
 Verify with `selat doctor` (read-only diagnostics: skill, PATH, Circle auth, Agent
 Wallet, config).
 
@@ -154,14 +162,19 @@ selat run "<intent>"         # discover + rank + pay for an x402 service in one 
 step). Lead with it to show the user what's available and the price *before* committing to
 a spend; `selat run` then ranks + pays in one shot once they approve.
 
-Use `selat run` for one-off capabilities the skill registry doesn't yet cover. It takes
-**only the intent string** — there is no user-facing `--max-amount` flag here. The cost
-cap is applied automatically: `selat run` invokes the skill's `rank.mjs --pick`, which
-caps the chosen `selat-pay` call at ~50% over the catalog price and rejects any uncapped
-hint. If you need to pin an explicit cap, use a vetted skill with `--max-amount` (Tier 1)
-or call the underlying `selat-pay <METHOD> <url> --chain <key> --max-amount <usd>`
-directly. The discovery/ranking half is read-only; the pay half spends from the user's
-wallet — treat the whole command as a spend and confirm first.
+Use `selat run` for one-off capabilities the skill registry doesn't yet cover. By default
+the cost cap is applied automatically: `selat run` invokes the skill's `rank.mjs --pick`,
+which caps the chosen call at ~50% over the catalog price and rejects any uncapped hint.
+To pay a specific endpoint you have already quoted, at an explicit cap, pin it:
+
+```
+selat run "<intent>" --endpoint <url> [--method <verb>] [--param key=value ...] --max-amount <usd>
+```
+
+Never fall back to running `selat-pay` directly, and never add `--chain`: `selat run`
+settles on the wallet's funded Gateway chain. The discovery/ranking half is read-only; the
+pay half spends from the user's wallet — treat the whole command as a spend and confirm
+first.
 
 ### Apify Actors — prepaid token (recognize → buy once → reuse the Bearer)
 
@@ -176,7 +189,7 @@ scheme is `prepaid-token` or whose service id starts with `apify:`; or a probe r
 Actor without a token returns an x402 challenge. That 402 is the Actor's own per-call price;
 in the prepaid-token model you do **not** sign or pay it (you can't settle it from a Gateway
 balance anyway). Buy **one** token, then call the Actor with it. Never treat the Actor 402
-as a payable quote, never hand-run the raw `selat-pay` hint against an Actor URL, and never
+as a payable quote, never run a `selat-pay` command against an Actor URL, and never
 re-probe the Actor's 402. Always drive Apify Actors with `selat run` + the Actor input:
 
 ```
@@ -272,13 +285,15 @@ Actor input is per-Actor (e.g. `{"username":["natgeo"],"resultsLimit":3}`) — r
 >   refused, never paid (`reason: "endpoint-not-in-catalog"`), and a pinned endpoint
 >   that fails the payment-layer reliability check is refused rather than substituted
 >   (`reason: "endpoint-unreliable"`). Neither charges anything.
-> • `selat run … --dry-run --json` plans without paying and returns `exec` —
->   `{ runner, cmd, argv, env? }`, the resolved spawn tuple the paid run would execute.
->   Spawn it directly (no shell) to run exactly what was quoted; `command` beside it is
->   the shell-quoted human display of the same thing, not something to re-parse.
+> • `selat run … --dry-run --json` plans without paying. Its `exec` tuple and `command`
+>   string describe the internal `selat-pay` call the paid run would make; they are for
+>   showing the user the price, endpoint, and body. **Do not execute them.** To pay what
+>   was quoted, re-run `selat run` without `--dry-run`, pinned with `--endpoint` (plus
+>   `--method` and the same `--param`s) and `--max-amount`.
 > • `selat skill run <name>` accepts the skill's params as `--flags` plus two reserved
 >   overrides: `--max-amount <usd>`, `--chain <key>`.
-> • `--max-amount` is also the mandatory cost cap on the underlying `selat-pay` engine.
+> • `--max-amount` is also the mandatory cost cap that `selat` passes to its internal
+>   `selat-pay` engine (which you never invoke directly).
 > • `selat doctor` prints sectioned diagnostics (Binaries · Agent-payment skill · Circle
 >   CLI · Agent Wallet · Spending policy (per chain) · selat-pay · Config · Router
 >   reachability) and ends with "All checks passed." (exit 0) or "N check(s) failed."
